@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Coordenador - Studi+</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/dashboard-coordenador.css">
+</head>
+<body>
+    <!-- Sidebar / Menu Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h2>Studi<i>+</i> Coordenação</h2>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" class="active" id="menu-dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-alunos">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Gestão de Alunos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-professores">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span>Professores</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-turmas">
+                    <i class="fas fa-users"></i>
+                    <span>Turmas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-alertas">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Alertas de Evasão</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-relatorios">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-eventos">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Eventos</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-comunicacao">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Comunicação</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-recursos">
+                    <i class="fas fa-building"></i>
+                    <span>Salas e Recursos</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">C</div>
+                <div class="user-name">Coord. Santos</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title">
+                <h1>Dashboard Coordenação</h1>
+                <p>Bem-vindo(a) ao Portal de Gestão Studi<i>+</i></p>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" placeholder="Pesquisar alunos, turmas...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <!--inserir intregaçãoes com outras páginas apartir daqui-->
+        <!-- Dashboard Principal -->
+        <div id="dashboard-content">
+            <!-- Estatísticas Principais -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">247</div>
+                    <div class="stat-label">Alunos Ativos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">Professores</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Turmas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">Alertas</div>
+                </div>
+            </div>
+
+            <!-- Alertas de Evasão -->
+            <div class="alert-card">
+                <h4><i class="fas fa-exclamation-triangle"></i> Alertas de Evasão</h4>
+                <p>5 alunos com baixa frequência necessitam intervenção imediata</p>
+            </div>
+
+            <!-- Cards de Atalho -->
+            <div class="dashboard">
+                <div class="dashboard-card" id="card-alunos">
+                    <i class="fas fa-user-graduate"></i>
+                    <h3>Cadastrar Aluno</h3>
+                    <p>Adicione novos estudantes</p>
+                </div>
+
+                <div class="dashboard-card" id="card-matriculas">
+                    <i class="fas fa-users"></i>
+                    <h3>Matrículas</h3>
+                    <p>Matricule alunos em turmas</p>
+                </div>
+
+                <div class="dashboard-card" id="card-professores">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Professores</h3>
+                    <p>Gerencie voluntários</p>
+                </div>
+
+                <div class="dashboard-card" id="card-eventos">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Eventos</h3>
+                    <p>Organize aulões e simulados</p>
+                </div>
+
+                <div class="dashboard-card" id="card-comunicacao">
+                    <i class="fas fa-bullhorn"></i>
+                    <h3>Comunicados</h3>
+                    <p>Envie mensagens</p>
+                </div>
+
+                <div class="dashboard-card" id="card-relatorios">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Relatórios</h3>
+                    <p>Analise desempenho</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Gestão de Alunos -->
+        <div class="section-card fadeIn" id="alunos-content" style="display: none;">
+            <div class="section-header">
+                <h2>Gestão de Alunos</h2>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>Cadastrar Novo Aluno
+                </button>
+            </div>
+
+            <div class="tab-nav">
+                <button class="tab-button active">Cadastrar Aluno</button>
+                <button class="tab-button">Lista de Alunos</button>
+                <button class="tab-button">Lista de Espera</button>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div class="form-group">
+                <label for="nome-aluno">Nome Completo</label>
+                <input type="text" id="nome-aluno" placeholder="Digite o nome completo do aluno">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="cpf-aluno">CPF</label>
+                    <input type="text" id="cpf-aluno" placeholder="000.000.000-00">
+                </div>
+                <div class="form-group">
+                    <label for="data-nascimento">Data de Nascimento</label>
+                    <input type="date" id="data-nascimento">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="endereco">Endereço Completo</label>
+                <textarea id="endereco" rows="3" placeholder="Rua, número, bairro, cidade - CEP"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="tel" id="telefone" placeholder="(11) 99999-9999">
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="aluno@email.com">
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="escolaridade">Escolaridade</label>
+                    <select id="escolaridade">
+                        <option>Selecione a escolaridade</option>
+                        <option>Ensino Fundamental Completo</option>
+                        <option>Ensino Médio Cursando</option>
+                        <option>Ensino Médio Completo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="objetivo">Objetivo</label>
+                    <select id="objetivo">
+                        <option>Selecione o objetivo</option>
+                        <option>Vestibular</option>
+                        <option>Vestibulinho</option>
+                        <option>ENEM</option>
+                        <option>Concurso Público</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px;">
+                <button class="btn btn-outline">Cancelar</button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-save"></i>Cadastrar Aluno
+                </button>
+            </div>
+        </div>
+
+        <!-- Seção de Professores -->
+        <div class="section-card fadeIn" id="professores-content" style="display: none;">
+            <div class="section-header">
+                <h2>Gestão de Professores Voluntários</h2>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus"></i>Cadastrar Professor
+                </button>
+            </div>
+
+            <div class="search-select">
+                <input type="text" placeholder="Buscar professor...">
+                <select>
+                    <option>Todas as disciplinas</option>
+                    <option>Matemática</option>
+                    <option>Português</option>
+                    <option>Física</option>
+                    <option>Química</option>
+                    <option>História</option>
+                    <option>Geografia</option>
+                </select>
+                <button><i class="fas fa-search"></i> Buscar</button>
+            </div>
+
+            <div class="professor-card">
+                <div class="professor-info">
+                    <div class="professor-details">
+                        <h4>Prof. Ana Maria Silva</h4>
+                        <p>Matemática e Física • Mestrado em Educação</p>
+                        <div class="disponibilidade">
+                            <span class="dia-semana disponivel">SEG</span>
+                            <span class="dia-semana disponivel">TER</span>
+                            <span class="dia-semana">QUA</span>
+                            <span class="dia-semana disponivel">QUI</span>
+                            <span class="dia-semana">SEX</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-outline">Editar</button>
+                        <button class="btn btn-sm btn-primary">Alocar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="professor-card">
+                <div class="professor-info">
+                    <div class="professor-details">
+                        <h4>Prof. Carlos Oliveira</h4>
+                        <p>Português e Literatura • Licenciatura em Letras</p>
+                        <div class="disponibilidade">
+                            <span class="dia-semana">SEG</span>
+                            <span class="dia-semana disponivel">TER</span>
+                            <span class="dia-semana disponivel">QUA</span>
+                            <span class="dia-semana disponivel">QUI</span>
+                            <span class="dia-semana disponivel">SEX</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm btn-outline">Editar</button>
+                        <button class="btn btn-sm btn-primary">Alocar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Alertas -->
+        <div class="section-card fadeIn" id="alertas-content" style="display: none;">
+            <div class="section-header">
+                <h2>Sistema de Alertas de Evasão</h2>
+                <button class="btn btn-primary">
+                    <i class="fas fa-cog"></i>Configurar Alertas
+                </button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Turma</th>
+                        <th>Faltas Consecutivas</th>
+                        <th>Status</th>
+                        <th>Última Presença</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>João Silva Santos</td>
+                        <td>Turma A - Manhã</td>
+                        <td>
+</body>

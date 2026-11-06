@@ -1,0 +1,47 @@
+.studi-loader {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  position: fixed;
+  z-index: 9999;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-top: 4px solid #379091;
+  border-right: 4px solid transparent;
+  box-sizing: border-box;
+  animation: studi-rotation 1s linear infinite;
+}
+
+.studi-loader::after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border-left: 4px solid #FFC544;
+  border-bottom: 4px solid transparent;
+  animation: studi-rotation 0.5s linear infinite reverse;
+}
+
+.studi-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9998;
+}
+
+@keyframes studi-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

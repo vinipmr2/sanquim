@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@types/node": "^22.15.18",
-    "cors": "^2.8.5",
-    "express": "^5.1.0"
-  }
-}

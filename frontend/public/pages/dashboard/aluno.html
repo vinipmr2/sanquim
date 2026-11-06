@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>Portal do Aluno</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard-aluno.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <img src="../../assets/img/logo.webp" alt="Logo da Escola" onerror="this.style.display='none'">
+            <h2>Portal do Aluno</h2>
+        </div>
+        
+        <!--Menu lateral-->
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" class="active">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-atividades">
+                    <i class="fas fa-tasks"></i>
+                    <span>Atividades</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-materiais">
+                    <i class="fas fa-book"></i>
+                    <span>Materiais</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-duvidas">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Dúvidas</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="menu-desempenho">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Desempenho</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Calendário</span>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    A
+                </div>
+                <div class="user-name">
+                    Aluno Santos
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title">
+                <h1>Dashboard</h1>
+                <p>Bem-vindo(a) ao Portal do Aluno</p>
+            </div>
+            
+            <div class="search-bar">
+                <input type="text" placeholder="Pesquisar...">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <!-- Cards de Atalho -->
+        <div class="dashboard">
+            <div class="dashboard-card" id="card-atividades">
+                <i class="fas fa-tasks"></i>
+                <h3>Atividades</h3>
+                <p>Visualize suas atividades pendentes</p>
+            </div>
+            
+            <div class="dashboard-card" id="card-materiais">
+                <i class="fas fa-book"></i>
+                <h3>Materiais de Estudo</h3>
+                <p>Acesse os materiais compartilhados</p>
+            </div>
+            
+            <div class="dashboard-card" id="card-duvidas">
+                <i class="fas fa-question-circle"></i>
+                <h3>Plantão de Dúvidas</h3>
+                <p>Tire suas dúvidas com os professores</p>
+            </div>
+            
+            <div class="dashboard-card" id="card-desempenho">
+                <i class="fas fa-chart-line"></i>
+                <h3>Desempenho</h3>
+                <p>Acompanhe suas notas e progresso</p>
+            </div>
+            
+            <div class="dashboard-card" id="card-calendario">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>Calendário</h3>
+                <p>Visualize seu horário e eventos</p>
+            </div>
+        </div>
+
+        <div class="main-sections">
+
+            <div class="section-card fadeIn" id="atividades-content">
+                <div class="section-header">
+                    <h2>Atividades Pendentes</h2>
+                    <button class="btn btn-primary">Ver Todas</button>
+                </div>
+                
+                <div class="search-select">
+                    <select>
+                        <option>Todas as Disciplinas</option>
+                        <option>Matemática</option>
+                        <option>Português</option>
+                        <option>Ciências</option>
+                        <option>História</option>
+                        <option>Geografia</option>
+                    </select>
+                    <select>
+                        <option>Todos os Status</option>
+                        <option>Pendentes</option>
+                        <option>Concluídas</option>
+                        <option>Atrasadas</option>
+                    </select>
+                    <button><i class="fas fa-search"></i> Filtrar</button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Atividade</th>
+                            <th>Disciplina</th>
+                            <th>Data de Entrega</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Lista de Exercícios - Equações</td>
+                            <td>Matemática</td>
+                            <td>25/05/2025</td>
+                            <td><span class="status-badge status-pendente">Pendente</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-primary">Fazer</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Redação - Sustentabilidade</td>
+                            <td>Português</td>
+                            <td>22/05/2025</td>
+                            <td><span class="status-badge status-entregue">Entregue</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Trabalho - Biomas</td>
+                            <td>Ciências</td>
+                            <td>30/05/2025</td>
+                            <td><span class="status-badge status-pendente">Pendente</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-primary">Fazer</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Questionário - Revolução Francesa</td>
+                            <td>História</td>
+                            <td>28/05/2025</td>
+                            <td><span class="status-badge status-pendente">Pendente</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-primary">Fazer</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Seção de Materiais de Estudo -->
+            <!-- Apenas simulação; intregar com outrasm páginas posteriomente -->
+            <div class="section-card fadeIn" id="materiais-content" style="display: none;">
+                <div class="section-header">
+                    <h2>Materiais de Estudo</h2>
+                    <div class="search-bar" style="width: 300px;">
+                        <input type="text" placeholder="Buscar materiais...">
+                        <button><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                
+                <div class="tab-nav">
+                    <button class="tab-button active">Recentes</button>
+                    <button class="tab-button">Por Disciplina</button>
+                    <button class="tab-button">Favoritos</button>
+                </div>
+                
+                <div class="material-grid">
+                    <div class="material-card">
+                        <div class="material-thumbnail">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="material-info">
+                            <h3>Resumo - Geometria Espacial</h3>
+                            <p>Matemática • PDF • 3MB</p>
+                            <div class="material-actions">
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-download"></i></button>
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="material-card">
+                        <div class="material-thumbnail">
+                            <i class="fas fa-file-powerpoint"></i>
+                        </div>
+                        <div class="material-info">
+                            <h3>Slides - Revolução Francesa</h3>
+                            <p>História • PPT • 5MB</p>
+                            <div class="material-actions">
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-download"></i></button>
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="material-card">
+                        <div class="material-thumbnail">
+                            <i class="fas fa-file-word"></i>
+                        </div>
+                        <div class="material-info">
+                            <h3>Guia de Redação</h3>
+                            <p>Português • DOCX • 1.5MB</p>
+                            <div class="material-actions">
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-download"></i></button>
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="material-card">
+                        <div class="material-thumbnail">
+                            <i class="fas fa-file-video"></i>
+                        </div>
+                        <div class="material-info">
+                            <h3>Vídeo-aula - Funções</h3>
+                            <p>Matemática • MP4 • 50MB</p>
+                            <div class="material-actions">
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-play"></i></button>
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="material-card">
+                        <div class="material-thumbnail">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <div class="material-info">
+                            <h3>Dados Climáticos</h3>
+                            <p>Geografia • XLSX • 2MB</p>
+                            <div class="material-actions">
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-download"></i></button>
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="material-card">
+                        <div class="material-thumbnail">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="material-info">
+                            <h3>Revisão - Química Orgânica</h3>
+                            <p>Química • PDF • 4MB</p>
+                            <div class="material-actions">
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-download"></i></button>
+                                <button class="btn btn-sm btn-outline"><i class="fas fa-star"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Plantão de Dúvidas -->
+            <!-- Apenas simulação -->
+            <div class="section-card fadeIn" id="duvidas-content" style="display: none;">
+                <div class="section-header">
+                    <h2>Plantão de Dúvidas</h2>
+                    <button class="btn btn-primary">Nova Dúvida</button>
+                </div>
+                
+                <div class="tab-nav">
+                    <button class="tab-button active">Minhas Dúvidas</button>
+                    <button class="tab-button">Horários Disponíveis</button>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Disciplina</th>
+                            <th>Professor</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dúvida sobre Teorema de Pitágoras</td>
+                            <td>Matemática</td>
+                            <td>Prof. Silva</td>
+                            <td>18/05/2025</td>
+                            <td><span class="status-badge status-presente">Respondido</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Exercício 5 da página 45</td>
+                            <td>Física</td>
+                            <td>Prof. Santos</td>
+                            <td>20/05/2025</td>
+                            <td><span class="status-badge status-ausente">Pendente</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 30px;">
+                    <h3>Próximos Plantões</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Disciplina</th>
+                                <th>Professor</th>
+                                <th>Data</th>
+                                <th>Horário</th>
+                                <th>Sala</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Matemática</td>
+                                <td>Prof. Silva</td>
+                                <td>25/05/2025</td>
+                                <td>14:00 - 15:30</td>
+                                <td>Sala 103</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary">Agendar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Física</td>
+                                <td>Prof. Santos</td>
+                                <td>26/05/2025</td>
+                                <td>15:30 - 17:00</td>
+                                <td>Lab. Física</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary">Agendar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Química</td>
+                                <td>Profa. Oliveira</td>
+                                <td>27/05/2025</td>
+                                <td>13:00 - 14:30</td>
+                                <td>Lab. Química</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary">Agendar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Seção de Desempenho -->
+            <!-- Apenas simulação -->
+            <div class="section-card fadeIn" id="desempenho-content" style="display: none;">
+                <div class="section-header">
+                    <h2>Desempenho Acadêmico</h2>
+                    <div>
+                        <select style="width: 200px; margin-right: 10px;">
+                            <option>1º Bimestre</option>
+                            <option>2º Bimestre</option>
+                            <option>3º Bimestre</option>
+                            <option>4º Bimestre</option>
+                            <option>Anual</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Disciplina</th>
+                            <th>Professor</th>
+                            <th>Média</th>
+                            <th>Frequência</th>
+                            <th>Situação</th>
+                            <th>Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Matemática</td>
+                            <td>Prof. Silva</td>
+                            <td>8.5</td>
+                            <td>95%</td>
+                            <td><span class="status-badge status-presente">Aprovado</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver Notas</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Português</td>
+                            <td>Profa. Costa</td>
+                            <td>7.8</td>
+                            <td>90%</td>
+                            <td><span class="status-badge status-presente">Aprovado</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver Notas</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Física</td>
+                            <td>Prof. Santos</td>
+                            <td>6.5</td>
+                            <td>85%</td>
+                            <td><span class="status-badge status-justificado">Atenção</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver Notas</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Química</td>
+                            <td>Profa. Oliveira</td>
+                            <td>7.0</td>
+                            <td>88%</td>
+                            <td><span class="status-badge status-presente">Aprovado</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver Notas</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>História</td>
+                            <td>Prof. Lima</td>
+                            <td>9.0</td>
+                            <td>98%</td>
+                            <td><span class="status-badge status-presente">Aprovado</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-outline">Ver Notas</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 30px;">
+                    <h3>Grade de Horários</h3>
+                    <div class="grade-horarios">
+                        <div class="dias-semana">
+                            <div class="dia">Hora</div>
+                            <div class="dia">Segunda</div>
+                            <div class="dia">Terça</div>
+                            <div class="dia">Quarta</div>
+                            <div class="dia">Quinta</div>
+                            <div class="dia">Sexta</div>
+                        </div>
+                        <div class="horarios">
+                            <div class="horario">07:30 - 08:20</div>
+                            <div class="aula matematica">
+                                <div class="disciplina">Matemática</div>
+                                <div class="professor">Prof. Silva</div>
+                            </div>
+                            <div class="aula portugues">
+                                <div class="disciplina">Português</div>
+                                <div class="professor">Profa. Costa</div>
+                            </div>
+                            <div class="aula historia">
+                                <div class="disciplina">História</div>
+                                <div class="professor">Prof. Lima</div>
+                            </div>
+                            <div class="aula fisica">
+                                <div class="disciplina">Física</div>
+                                <div class="professor">Prof. Santos</div>
+                            </div>
+                            <div class="aula geografia">
+                                <div class="disciplina">Geografia</div>
+                                <div class="professor">Prof. Gomes</div>
+                            </div>
+                        </div>
+                        <div class="horarios">
+                            <div class="horario">08:20 - 09:10</div>
+                            <div class="aula matematica">
+                                <div class="disciplina">Matemática</div>
+                                <div class="professor">Prof. Silva</div>
+                            </div>
+                            <div class="aula portugues">
+                                <div class="disciplina">Português</div>
+                                <div class="professor">Profa. Costa</div>
+                            </div>
+                            <div class="aula historia">
+                                <div class="disciplina">História</div>
+                                <div class="professor">Prof. Lima</div>
+                            </div>
+                            <div class="aula fisica">
+                                <div class="disciplina">Física</div>
+                                <div class="professor">Prof. Santos</div>
+                            </div>
+                            <div class="aula geografia">
+                                <div class="disciplina">Geografia</div>
+                                <div class="professor">Prof. Gomes</div>
+                            </div>
+                        </div>
+                        <div class="horarios">
+                            <div class="horario">09:10 - 10:00</div>
+                            <div class="aula portugues">
+                                <div class="disciplina">Português</div>
+                                <div class="professor">Profa. Costa</div>
+                            </div>
+                            <div class="aula ciencias">
+                                <div class="disciplina">Ciências</div>
+                                <div class="professor">Profa. Oliveira</div>
+                            </div>
+                            <div class="aula matematica">
+                                <div class="disciplina">Matemática</div>
+                                <div class="professor">Prof. Silva</div>
+                            </div>
+                            <div class="aula geografia">
+                                <div class="disciplina">Geografia</div>
+                                <div class="professor">Prof. Gomes</div>
+                            </div>
+                            <div class="aula historia">
+                                <div class="disciplina">História</div>
+                                <div class="professor">Prof. Lima</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Captura todos os elementos do menu
+        const menuAtividades = document.getElementById('menu-atividades');
+        const menuMateriais = document.getElementById('menu-materiais');
+        const menuDuvidas = document.getElementById('menu-duvidas');
+        const menuDesempenho = document.getElementById('menu-desempenho');
+        
+        // Captura todos os cards da dashboard
+        const cardAtividades = document.getElementById('card-atividades');
+        const cardMateriais = document.getElementById('card-materiais');
+        const cardDuvidas = document.getElementById('card-duvidas');
+        const cardDesempenho = document.getElementById('card-desempenho');
+        
+        // Captura todas as seções de conteúdo
+        const atividadesContent = document.getElementById('atividades-content');
+        const materiaisContent = document.getElementById('materiais-content');
+        const duvidasContent = document.getElementById('duvidas-content');
+        const desempenhoContent = document.getElementById('desempenho-content');
+        
+        // Função para esconder todas as seções
+        function esconderTodasSecoes() {
+            atividadesContent.style.display = 'none';
+            materiaisContent.style.display = 'none';
+            duvidasContent.style.display = 'none';
+            desempenhoContent.style.display = 'none';
+        }
+        
+        // Função para mostrar a seção de atividades
+        function mostrarAtividades() {
+            esconderTodasSecoes();
+            atividadesContent.style.display = 'block';
+        }
+        
+        // Função para mostrar a seção de materiais
+        function mostrarMateriais() {
+            esconderTodasSecoes();
+            materiaisContent.style.display = 'block';
+        }
+        
+        // Função para mostrar a seção de dúvidas
+        function mostrarDuvidas() {
+            esconderTodasSecoes();
+            duvidasContent.style.display = 'block';
+        }
+        
+        // Função para mostrar a seção de desempenho
+        function mostrarDesempenho() {
+            esconderTodasSecoes();
+            desempenhoContent.style.display = 'block';
+        }
+        
+        // Adiciona os event listeners aos elementos do menu
+        menuAtividades.addEventListener('click', mostrarAtividades);
+        menuMateriais.addEventListener('click', mostrarMateriais);
+        menuDuvidas.addEventListener('click', mostrarDuvidas);
+        menuDesempenho.addEventListener('click', mostrarDesempenho);
+        
+        // Adiciona os event listeners aos cards da dashboard
+        cardAtividades.addEventListener('click', mostrarAtividades);
+        cardMateriais.addEventListener('click', mostrarMateriais);
+        cardDuvidas.addEventListener('click', mostrarDuvidas);
+        cardDesempenho.addEventListener('click', mostrarDesempenho);
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Aluno</title>
+  <link rel="stylesheet" href="../assets/css/login-aluno.css">
+  <link rel="stylesheet" href="../assets/css/loading.css">
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo" onclick="window.location.href='inicio.html'">
+      <img src="../assets/img/logo.webp" alt="Logo">
+      <strong>Início</strong>
+    </div>
+    <div class="nav-items">
+      <span class="theme-toggle" onclick="toggleTheme()"><strong>🌙</strong></span>
+    </div>
+    <div class="professor">
+      <strong onclick="window.location.href='login-professor.html'">Professor</strong>
+    </div>
+  </div>
+
+  <div class="main">
+    <input type="checkbox" id="chk" aria-hidden="true">
+
+    <div class="signup">
+      <form>
+        <label for="chk" aria-hidden="true">Cadastro</label>
+        <input type="text" name="txt" placeholder="Digite seu nome de usuário" required>
+        <input type="email" name="email" placeholder="Digite seu email" required>
+        <input type="password" name="pswd" placeholder="Digite sua senha" required>
+        <button type="button">Cadastrar-se</button>
+      </form>
+    </div>
+
+    <div class="login">
+      <form action="../../backend/auth/login_aluno.php" method="post">
+        <label for="chk" aria-hidden="true">Login</label>
+        <input type="text" id="username" name="username" placeholder="Digite seu usuario" required>
+        <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
+        <div id="login-message" class="login-message"></div>
+        <div class="login-attempts">Tentativas: <span id="attempts-left">3</span></div>
+        <button type="submit">Login</button>
+        <div class="forgot-password">
+          <a href="esqueci-senha.html">Esqueci minha senha</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="overlay" style="display: none;"></div>
+  <span class="loader" style="display: none;"></span>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loader = document.querySelector('.loader');
+      const erro = new URLSearchParams(window.location.search).get('erro');
+
+      if (erro === '1') {
+        const message = document.getElementById('login-message');
+        message.textContent = 'Usuário ou senha inválidos.';
+        message.classList.add('error');
+        message.style.display = 'block';
+      }
+
+      document.querySelector('.logo').addEventListener('click', function(e) {
+        e.preventDefault();
+        const overlay = document.querySelector('.overlay');
+        loader.style.display = 'block';
+        overlay.style.display = 'block';
+        setTimeout(() => {
+          window.location.href = 'inicio.html';
+        }, 3000);
+      });
+    });
+
+    // Função para toggle do tema
+    function toggleTheme() {
+      document.body.classList.toggle('dark-theme');
+      const themeIcon = document.querySelector('.theme-toggle strong');
+      if (document.body.classList.contains('dark-theme')) {
+        themeIcon.textContent = '☀️';
+      } else {
+        themeIcon.textContent = '🌙';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,1 +1,23 @@
+# Node / Frontend
 node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# Java / Maven / Backend
+target/
+backend/target/
+*.class
+
+# Ambientes e Logs
+.env
+.env.*
+!*.example
+*.log
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.iml
