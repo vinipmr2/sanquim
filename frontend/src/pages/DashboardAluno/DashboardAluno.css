@@ -1,654 +1,856 @@
-
-
-/* Reset básico*/
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Nunito', 'Segoe UI', sans-serif;
-}
-/* Variáveis de cores e estilos */
-:root {
-    --cor-primaria: #e7b342;
-    --cor-secundaria: #0a5ad1;
-    --cor-acento: #ffb300;
-    --cor-texto: #333;
-    --cor-fundo: #f5f5f5;
-    --cor-fundo-cartao: #ffffff;
-    --sombra: 0 2px 5px rgba(0, 0, 0, 0.1);
-    --borda-raio: 8px;
-    --espacamento: 20px;
-}
+/* =========================================================
+   PORTAL DO ALUNO / DISCENTE (ROLE_ALUNO) - STUDI+
+   Totalmente escopado sob .page-dashboard-aluno
+   ========================================================= */
 
 .page-dashboard-aluno {
-    background-color: var(--cor-fundo);
-    color: var(--cor-texto);
-    line-height: 1.6;
-}
-
-.sidebar {
-    width: 250px;
-    height: 100vh;
-    background-color: var(--cor-primaria);
-    color: white;
-    position: fixed;
-    left: 0;
-    top: 0;
-    padding: var(--espacamento);
-    box-shadow: var(--sombra);
-    transition: all 0.3s ease;
-    overflow-y: auto;
-}
-
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px; 
-}
-
-.sidebar-logo img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    border: 3px solid #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    background: #fff;
-    transition: box-shadow 0.3s;
-    margin-right: 0;
-}
-.sidebar-logo h2 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
-.sidebar-menu {
-    list-style: none;
-}
-.sidebar-menu li {
-    margin-bottom: 10px;
-}
-.sidebar-menu a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: white;
-    padding: 10px;
-    border-radius: var(--borda-raio);
-    transition: background-color 0.3s;
-}
-.sidebar-menu a:hover, .sidebar-menu a.active {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-.sidebar-menu a i {
-    margin-right: 10px;
-    font-size: 20px;
-}
-.sidebar-menu {
-    list-style: none;
-    margin-top: 30px;
-}
-.sidebar-footer {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    display: flex;
-    align-items: center;
-}
-
-.user-info {
-    display: flex;
-    align-items: center;
-}
-.user-avatar {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    background-color: var(--cor-acento);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 10px;
-    font-weight: bold;
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: 'Nunito', sans-serif;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+body.dark-theme .page-dashboard-aluno {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+/* --------------------------------------------------------
+   Sidebar Discente
+   -------------------------------------------------------- */
+.page-dashboard-aluno .sidebar {
+  width: 260px;
+  background: #1e293b;
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.page-dashboard-aluno .sidebar-logo {
+  padding: 24px 20px;
+  border-bottom: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.page-dashboard-aluno .sidebar-logo h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #10b981;
+  margin: 0;
+}
+
+.page-dashboard-aluno .sidebar-logo h2 i {
+  color: #f59e0b;
+  font-style: normal;
+}
+
+.page-dashboard-aluno .role-chip.aluno {
+  align-self: flex-start;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: #10b981;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.page-dashboard-aluno .sidebar-menu {
+  list-style: none;
+  padding: 16px 12px;
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.page-dashboard-aluno .sidebar-menu li {
+  margin-bottom: 4px;
+}
+
+.page-dashboard-aluno .sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.page-dashboard-aluno .sidebar-menu a:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.page-dashboard-aluno .sidebar-menu a.active {
+  background: #10b981;
+  color: #fff;
+}
+
+.page-dashboard-aluno .sidebar-footer {
+  padding: 16px 14px;
+  border-top: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-dashboard-aluno .btn-swagger-sidebar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #334155;
+  color: #f8fafc;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.page-dashboard-aluno .btn-swagger-sidebar:hover {
+  background: #475569;
+}
+
+.page-dashboard-aluno .btn-logout {
+  width: 100%;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  margin: 0;
 }
-.user-name {
-    font-size: 14px;
+
+.page-dashboard-aluno .btn-logout:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* --------------------------------------------------------
+   Main Content Discente
+   -------------------------------------------------------- */
+.page-dashboard-aluno .main-content {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  min-height: 100vh;
+  padding: 28px 32px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.page-dashboard-aluno .content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+body.dark-theme .page-dashboard-aluno .content-header {
+  border-color: #334155;
+}
+
+.page-dashboard-aluno .header-title h1 {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+body.dark-theme .page-dashboard-aluno .header-title h1 {
+  color: #f8fafc;
+}
+
+.page-dashboard-aluno .header-title p {
+  color: #64748b;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+body.dark-theme .page-dashboard-aluno .header-title p {
+  color: #94a3b8;
+}
+
+.page-dashboard-aluno .header-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  padding: 8px 16px;
+  border-radius: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+body.dark-theme .page-dashboard-aluno .header-user {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.page-dashboard-aluno .user-avatar.aluno {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.page-dashboard-aluno .user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-dashboard-aluno .user-details strong {
+  font-size: 0.88rem;
+  color: #1e293b;
 }
 
-.main-content {
-    margin-left: 250px;
-    padding: var(--espacamento);
-    min-height: 100vh;
+body.dark-theme .page-dashboard-aluno .user-details strong {
+  color: #f8fafc;
 }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
+.page-dashboard-aluno .user-details small {
+  font-size: 0.76rem;
+  color: #64748b;
 }
 
-.page-title h1 {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--cor-primaria);
+/* --------------------------------------------------------
+   Banner de Identificação do Discente
+   -------------------------------------------------------- */
+.page-dashboard-aluno .student-badge-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  flex-wrap: wrap;
+  gap: 16px;
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
 }
 
-.page-title p {
-    color: #777;
-    font-size: 14px;
+body.dark-theme .page-dashboard-aluno .student-badge-banner {
+  background: #1e293b;
+  border-color: #334155;
 }
 
-.search-bar {
-    display: flex;
-    background-color: white;
-    border-radius: var(--borda-raio);
-    padding: 8px 15px;
-    box-shadow: var(--sombra);
+.page-dashboard-aluno .student-badge-info {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-.search-bar input {
-    border: none;
-    outline: none;
-    width: 250px;
-    font-size: 14px;
+.page-dashboard-aluno .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.search-bar button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--cor-primaria);
+.page-dashboard-aluno .info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  font-weight: 700;
 }
 
-/* Dashboard de atalhos */
-.dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
+.page-dashboard-aluno .info-val {
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 800;
 }
 
-.dashboard-card {
-    background-color: var(--cor-fundo-cartao);
-    border-radius: var(--borda-raio);
-    padding: 20px;
-    box-shadow: var(--sombra);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
+body.dark-theme .page-dashboard-aluno .info-val {
+  color: #f8fafc;
 }
 
-.dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+.page-dashboard-aluno .search-filter-box {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 8px 14px;
+  border-radius: 10px;
+  gap: 10px;
+  min-width: 260px;
+  border: 1px solid #e2e8f0;
 }
 
-.dashboard-card i {
-    font-size: 36px;
-    color: var(--cor-primaria);
-    margin-bottom: 15px;
+body.dark-theme .page-dashboard-aluno .search-filter-box {
+  background: #0f172a;
+  border-color: #334155;
 }
 
-.dashboard-card h3 {
-    font-size: 16px;
-    margin-bottom: 10px;
+.page-dashboard-aluno .search-filter-box i {
+  color: #94a3b8;
 }
 
-.dashboard-card p {
-    font-size: 13px;
-    color: #777;
+.page-dashboard-aluno .search-filter-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  color: inherit;
+  margin: 0;
+  padding: 0;
 }
 
+/* --------------------------------------------------------
+   KPI Cards Aluno
+   -------------------------------------------------------- */
+.page-dashboard-aluno .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
 
-.main-sections {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+.page-dashboard-aluno .kpi-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
 }
 
-.section-card {
-    background-color: var(--cor-fundo-cartao);
-    border-radius: var(--borda-raio);
-    padding: 20px;
-    box-shadow: var(--sombra);
+body.dark-theme .page-dashboard-aluno .kpi-card {
+  background: #1e293b;
+  border-color: #334155;
 }
 
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+.page-dashboard-aluno .kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
 }
 
-.section-header h2 {
-    font-size: 18px;
-    color: var(--cor-primaria);
+.page-dashboard-aluno .kpi-icon.media { background: #fef3c7; color: #d97706; }
+.page-dashboard-aluno .kpi-icon.presenca { background: #dcfce7; color: #15803d; }
+.page-dashboard-aluno .kpi-icon.aulas { background: #e0f2fe; color: #0284c7; }
+.page-dashboard-aluno .kpi-icon.disciplinas { background: #ede9fe; color: #7c3aed; }
+
+.page-dashboard-aluno .kpi-info {
+  display: flex;
+  flex-direction: column;
 }
 
-.tab-nav {
-    display: flex;
-    gap: 15px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 20px;
+.page-dashboard-aluno .kpi-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
 }
 
-.tab-button {
-    padding: 10px 15px;
-    border: none;
-    background: none;
-    font-size: 14px;
-    font-weight: 600;
-    color: #777;
-    cursor: pointer;
-    position: relative;
+.page-dashboard-aluno .kpi-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 2px 0;
 }
 
-.tab-button.active {
-    color: var(--cor-primaria);
+body.dark-theme .page-dashboard-aluno .kpi-value {
+  color: #f8fafc;
 }
 
-.tab-button.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: var(--cor-primaria);
-    border-radius: 3px 3px 0 0;
+.page-dashboard-aluno .kpi-sub {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+.page-dashboard-aluno .kpi-sub.positive {
+  color: #16a34a;
+  font-weight: 600;
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    font-size: 14px;
+.page-dashboard-aluno .kpi-sub.neutral {
+  color: #64748b;
 }
 
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: var(--borda-raio);
-    font-size: 14px;
+/* --------------------------------------------------------
+   Boletim & Notas
+   -------------------------------------------------------- */
+.page-dashboard-aluno .card-box {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
 }
 
-.search-select {
-    display: flex;
-    gap: 10px;
+body.dark-theme .page-dashboard-aluno .card-box {
+  background: #1e293b;
+  border-color: #334155;
 }
 
-.search-select select {
-    flex: 1;
+.page-dashboard-aluno .box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.search-select button {
-    background-color: var(--cor-primaria);
-    color: white;
-    border: none;
-    border-radius: var(--borda-raio);
-    padding: 0 20px;
-    cursor: pointer;
+.page-dashboard-aluno .box-header h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+body.dark-theme .page-dashboard-aluno .box-header h2 {
+  color: #f8fafc;
 }
 
-/* Tabela específica para atividades pendentes */
-#atividades-content table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
+.page-dashboard-aluno .disciplinas-boletim-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
 }
 
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+.page-dashboard-aluno .disciplina-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-th {
-    background-color: #f9f9f9;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--cor-primaria);
+body.dark-theme .page-dashboard-aluno .disciplina-card {
+  background: #0f172a;
+  border-color: #334155;
 }
 
-td {
-    font-size: 14px;
+.page-dashboard-aluno .disciplina-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.status-badge {
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
+body.dark-theme .page-dashboard-aluno .disciplina-header {
+  border-color: #334155;
 }
 
-.status-presente {
-    background-color: #e6f7ea;
-    color: #2e7d32;
+.page-dashboard-aluno .disc-title-group h3 {
+  font-size: 1.15rem;
+  color: #0f172a;
+  font-weight: 800;
+  margin: 0 0 4px 0;
 }
 
-.status-ausente {
-    background-color: #fbe9e7;
-    color: #c62828;
+body.dark-theme .page-dashboard-aluno .disc-title-group h3 {
+  color: #f8fafc;
 }
 
-.status-justificado {
-    background-color: #fff8e1;
-    color: #ff8f00;
+.page-dashboard-aluno .docente-tag {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.status-entregue {
-    background-color: #e3f2fd;
-    color: #1565c0;
+.page-dashboard-aluno .disc-media-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.status-pendente {
-    background-color: #f3e5f5;
-    color: #6a1b9a;
+.page-dashboard-aluno .media-label {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 10px;
+.page-dashboard-aluno .media-badge {
+  font-size: 16px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 8px;
 }
 
-.btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: var(--borda-raio);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.page-dashboard-aluno .media-badge.aprovado {
+  background: #dcfce7;
+  color: #15803d;
 }
 
-.btn-primary {
-    background-color: var(--cor-primaria);
-    color: white;
+.page-dashboard-aluno .media-badge.atencao {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
-.btn-secondary {
-    background-color: var(--cor-secundaria);
-    color: white;
+.page-dashboard-aluno .status-pill {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
 }
 
-.btn-warning {
-    background-color: var(--cor-acento);
-    color: white;
+.page-dashboard-aluno .status-pill.status-ok { background: #16a34a; color: #ffffff; }
+.page-dashboard-aluno .status-pill.status-warn { background: #f59e0b; color: #ffffff; }
+.page-dashboard-aluno .status-pill.status-danger { background: #dc2626; color: #ffffff; }
+
+.page-dashboard-aluno .avaliacoes-detalhe h4 {
+  font-size: 13px;
+  color: #334155;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.btn-outline {
-    background-color: transparent;
-    border: 1px solid var(--cor-primaria);
-    color: var(--cor-primaria);
+body.dark-theme .page-dashboard-aluno .avaliacoes-detalhe h4 {
+  color: #cbd5e1;
 }
 
-.btn-sm {
-    padding: 5px 10px;
-    font-size: 12px;
+.page-dashboard-aluno .table-responsive {
+  width: 100%;
+  overflow-x: auto;
 }
 
-/* Material cards */
-.material-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 20px;
+.page-dashboard-aluno .custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
 }
 
-.material-card {
-    background-color: #fff;
-    border-radius: var(--borda-raio);
-    box-shadow: var(--sombra);
-    overflow: hidden;
-    transition: transform 0.3s;
+.page-dashboard-aluno .custom-table th {
+  background: #ffffff;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
 }
 
-.material-card:hover {
-    transform: translateY(-5px);
+body.dark-theme .page-dashboard-aluno .custom-table th {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-color: #334155;
 }
 
-.material-thumbnail {
-    height: 120px;
-    background-color: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.page-dashboard-aluno .custom-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
+  vertical-align: middle;
 }
 
-.material-thumbnail i {
-    font-size: 40px;
-    color: var(--cor-primaria);
+body.dark-theme .page-dashboard-aluno .custom-table td {
+  border-color: #334155;
+  color: #e2e8f0;
 }
 
-.material-info {
-    padding: 15px;
+.page-dashboard-aluno .type-badge {
+  background: #e2e8f0;
+  color: #334155;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
 }
 
-.material-info h3 {
-    font-size: 16px;
-    margin-bottom: 5px;
+.page-dashboard-aluno .feedback-text {
+  font-size: 12px;
+  color: #64748b;
+  font-style: italic;
 }
 
-.material-info p {
-    font-size: 12px;
-    color: #777;
-    margin-bottom: 10px;
+/* Frequência */
+.page-dashboard-aluno .freq-summary-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 16px;
 }
 
-.material-actions {
-    display: flex;
-    justify-content: space-between;
+body.dark-theme .page-dashboard-aluno .freq-summary-banner {
+  background: #0f172a;
+  border-color: #334155;
 }
 
-/* Personalizações específicas para cada módulo */
-#atividades-content, 
-#materiais-content, 
-#biblioteca-content, 
-#duvidas-content, 
-#desempenho-content {
-    min-height: 400px;
+.page-dashboard-aluno .freq-summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* Responsividade */
-html, body {
-    overflow-x: hidden;
-    width: 100%;
-    position: relative;
+.page-dashboard-aluno .freq-summary-col span {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
 }
 
-@media (max-width: 992px) {
-    .sidebar {
-        width: 70px;
-        padding: 20px 10px;
-    }
+.page-dashboard-aluno .freq-summary-col strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
 
-    .sidebar-logo h2,
-    .sidebar-menu a span,
-    .user-name {
-        display: none;
-    }
+.page-dashboard-aluno .mini-progress {
+  width: 80px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
 
-    .sidebar-logo {
-        justify-content: center;
-    }
+.page-dashboard-aluno .mini-progress div {
+  height: 100%;
+}
 
-    .sidebar-menu a {
-        justify-content: center;
-    }
+/* Timeline */
+.page-dashboard-aluno .student-timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+  position: relative;
+  padding-left: 26px;
+}
 
-    .sidebar-menu a i {
-        margin-right: 0;
-    }
+.page-dashboard-aluno .student-timeline-list::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: #e2e8f0;
+}
 
-    .main-content {
-        margin-left: 70px;
-        width: calc(100% - 70px);
-        box-sizing: border-box;
-    }
+.page-dashboard-aluno .student-timeline-card {
+  position: relative;
+  display: flex;
+  gap: 14px;
+}
 
-    .sidebar-footer {
-        left: 10px;
-    }
+.page-dashboard-aluno .timeline-badge-student {
+  position: absolute;
+  left: -26px;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  box-shadow: 0 0 0 3px #ffffff;
 }
 
-/* Ajuste para manter apenas tabelas de atividades com scroll */
-@media (max-width: 768px) {
-    .dashboard {
-        grid-template-columns: 1fr;
-    }
+.page-dashboard-aluno .timeline-card-content {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
 
-    .header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
+body.dark-theme .page-dashboard-aluno .timeline-card-content {
+  background: #0f172a;
+  border-color: #334155;
+}
 
-    .search-bar {
-        width: 100%;
-    }
+.page-dashboard-aluno .timeline-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
 
-    .search-bar input {
-        width: 100%;
-    }
-    
-    /* Ajustes para grade de horários */
-    .grade-horarios {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Ajuste para cards de materiais */
-    .material-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    }
+.page-dashboard-aluno .timeline-tag-disciplina {
+  background: #ede9fe;
+  color: #6d28d9;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
 }
 
-/* Ajustes específicos para telas muito pequenas */
-@media (max-width: 480px) {
-    .main-content {
-        padding: 10px;
-    }
-    
-    .dashboard-card {
-        padding: 15px 10px;
-    }
-    
-    .section-card {
-        padding: 15px 10px;
-    }
-    
-    /* Simplificar visualização em telas pequenas */
-    th, td {
-        padding: 8px 10px;
-    }
+.page-dashboard-aluno .timeline-tag-data {
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* Animações */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+.page-dashboard-aluno .presence-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: auto;
 }
 
-.fadeIn {
-    animation: fadeIn 0.5s ease-in-out;
+.page-dashboard-aluno .presence-tag.tag-presente {
+  background: #dcfce7;
+  color: #15803d;
 }
 
-/* Grade e calendário */
-.grade-horarios {
-    margin-top: 20px;
-    border: 1px solid #eee;
-    border-radius: var(--borda-raio);
-    overflow: hidden;
+.page-dashboard-aluno .presence-tag.tag-ausente {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
-.grade-horarios .dias-semana {
-    display: grid;
-    grid-template-columns: 0.5fr repeat(5, 1fr);
-    background-color: #f9f9f9;
+.page-dashboard-aluno .timeline-card-content h3 {
+  font-size: 15px;
+  color: #0f172a;
+  margin: 0 0 4px 0;
 }
 
-.grade-horarios .dia {
-    padding: 15px;
-    text-align: center;
-    font-weight: 600;
-    border-bottom: 1px solid #eee;
-    color: var(--cor-primaria);
+body.dark-theme .page-dashboard-aluno .timeline-card-content h3 {
+  color: #f8fafc;
 }
 
-.grade-horarios .horarios {
-    display: grid;
-    grid-template-columns: 0.5fr repeat(5, 1fr);
+.page-dashboard-aluno .timeline-topicos,
+.page-dashboard-aluno .timeline-objetivos {
+  font-size: 13px;
+  color: #475569;
+  margin: 0 0 4px 0;
 }
 
-.grade-horarios .horario {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #eee;
-    font-size: 14px;
+.page-dashboard-aluno .timeline-materiais-box {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.grade-horarios .aula {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    border-right: 1px solid #eee;
-    background-color: #fff;
-    font-size: 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+body.dark-theme .page-dashboard-aluno .timeline-materiais-box {
+  background: #1e293b;
+  border-color: #334155;
 }
 
-.grade-horarios .aula.matematica {
-    background-color: #e3f2fd;
+/* Materiais Grid */
+.page-dashboard-aluno .materiais-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
 }
 
-.grade-horarios .aula.portugues {
-    background-color: #fff8e1;
+.page-dashboard-aluno .material-card-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  gap: 14px;
 }
 
-.grade-horarios .aula.ciencias {
-    background-color: #e6f7ea;
+body.dark-theme .page-dashboard-aluno .material-card-item {
+  background: #0f172a;
+  border-color: #334155;
 }
 
-.grade-horarios .aula.historia {
-    background-color: #fbe9e7;
+.page-dashboard-aluno .material-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
 }
+
+.page-dashboard-aluno .material-icon.math { background: #e0f2fe; color: #0284c7; }
+.page-dashboard-aluno .material-icon.fis { background: #fef3c7; color: #d97706; }
+.page-dashboard-aluno .material-icon.let { background: #fce7f3; color: #db2777; }
 
-.grade-horarios .aula.geografia {
-    background-color: #f3e5f5;
+.page-dashboard-aluno .material-info h3 {
+  font-size: 14px;
+  color: #0f172a;
+  margin: 0 0 4px 0;
 }
 
-.grade-horarios .aula.fisica {
-    background-color: #e8eaf6;
+body.dark-theme .page-dashboard-aluno .material-info h3 {
+  color: #f8fafc;
 }
 
-.grade-horarios .aula .disciplina {
-    font-weight: 600;
-    margin-bottom: 5px;
+.page-dashboard-aluno .material-info p {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
+  margin: 0 0 6px 0;
 }
 
-.grade-horarios .aula .professor {
-    font-size: 12px;
-    color: #777;
+.page-dashboard-aluno .docente-info {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
 }

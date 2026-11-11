@@ -1,0 +1,919 @@
+{
+  "info": {
+    "name": "Colégio Sanquim — Studi+ API REST (Oficial FATEC)",
+    "description": "Coleção de requisições completa e ordenada para a API REST do Colégio Sanquim (Projeto Integrador - ADS 4º Semestre). Inclui autenticação JWT, controle de acesso RBAC, módulo administrativo, diário de classe e portal do aluno.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8085",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "profToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alunoToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticação",
+      "item": [
+        {
+          "name": "1.1 Login Gestor (admin@sanquim.br)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) {",
+                  "    pm.collectionVariables.set(\"token\", data.token);",
+                  "    console.log(\"Token de Gestor salvo com sucesso!\");",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Perfil is ROLE_GESTAO\", function () { pm.expect(data.perfil).to.eql(\"ROLE_GESTAO\"); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@sanquim.br\",\n  \"senha\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.2 Login Professor (carlos.santos@sanquim.br)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) {",
+                  "    pm.collectionVariables.set(\"profToken\", data.token);",
+                  "    console.log(\"Token de Professor salvo!\");",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Perfil is ROLE_PROFESSOR\", function () { pm.expect(data.perfil).to.eql(\"ROLE_PROFESSOR\"); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"carlos.santos@sanquim.br\",\n  \"senha\": \"prof123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.3 Login Aluno (joao.silva@sanquim.br)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) {",
+                  "    pm.collectionVariables.set(\"alunoToken\", data.token);",
+                  "    console.log(\"Token de Aluno salvo!\");",
+                  "}",
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Perfil is ROLE_ALUNO\", function () { pm.expect(data.perfil).to.eql(\"ROLE_ALUNO\"); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao.silva@sanquim.br\",\n  \"senha\": \"aluno123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.4 Obter Usuário Atual (/api/auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Gestão Administrativa (ROLE_GESTAO)",
+      "item": [
+        {
+          "name": "2.1 Listar Professores",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/professores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "professores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.2 Cadastrar Professor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Profa. Mariana Costa\",\n  \"email\": \"mariana.costa@sanquim.br\",\n  \"senha\": \"prof123\",\n  \"cpf\": \"333.444.555-66\",\n  \"telefone\": \"(19) 97777-8888\",\n  \"formacao\": \"Doutorado em Qu\\u00edmica\",\n  \"instituicao\": \"UNICAMP\",\n  \"disciplinasAtuacao\": \"Qu\\u00edmica Org\\u00e2nica e Geral\",\n  \"experiencia\": \"7 anos no ensino m\\u00e9dio e cursinhos\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/professores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "professores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 Listar Alunos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/alunos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "alunos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.4 Cadastrar Aluno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Gabriel Antunes\",\n  \"email\": \"gabriel.antunes@sanquim.br\",\n  \"senha\": \"aluno123\",\n  \"matriculaCodigo\": \"2026010\",\n  \"curso\": \"Pr\\u00e9-Vestibular Sanquim\",\n  \"semestre\": \"2026.1\",\n  \"turmaId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/alunos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "alunos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.5 Listar Turmas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/turmas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "turmas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.6 Cadastrar Turma",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"1\\u00ba Ano EM - Turma B\",\n  \"codigo\": \"1EM-B2026\",\n  \"disciplinaId\": 1,\n  \"professorResponsavel\": \"Prof. Carlos Santos\",\n  \"periodo\": \"2026.1\",\n  \"vagas\": 35,\n  \"horario\": \"Seg/Qua 08:00-10:00\",\n  \"sala\": \"Sala 102\",\n  \"dataInicio\": \"2026-02-10\",\n  \"dataFim\": \"2026-06-30\",\n  \"observacoes\": \"Turma matutina de refor\\u00e7o acad\\u00eamico.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/turmas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "turmas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.7 Listar Disciplinas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/disciplinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "disciplinas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.8 Cadastrar Disciplina",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Qu\\u00edmica Org\\u00e2nica\",\n  \"codigo\": \"QUI001\",\n  \"cargaHoraria\": 60,\n  \"creditos\": 4,\n  \"periodo\": \"2026.1\",\n  \"professorResponsavel\": \"Profa. Mariana Costa\",\n  \"departamento\": \"Departamento de Exatas\",\n  \"ementa\": \"Cadeias carb\\u00f4nicas, isomeria e rea\\u00e7\\u00f5es org\\u00e2nicas aplicadas.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/disciplinas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "disciplinas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.9 Listar Matrículas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/matriculas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "matriculas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.10 Realizar Matrícula (Enturmação)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matriculaCodigo\": \"2026099\",\n  \"alunoNome\": \"Matheus Barbosa\",\n  \"usuarioId\": 4,\n  \"curso\": \"Pr\\u00e9-Vestibular Sanquim\",\n  \"semestre\": \"2026.1\",\n  \"status\": \"ativo\",\n  \"turmaId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/matriculas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "matriculas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.11 Indicadores Gerais do Colégio (/stats)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.12 Alertas de Evasão Escolar (/alertas-evasao)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/alertas-evasao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "alertas-evasao"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Pedagógico e Diário de Classe (ROLE_PROFESSOR / ROLE_GESTAO)",
+      "item": [
+        {
+          "name": "3.1 Minhas Turmas (/minhas-turmas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/minhas-turmas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "minhas-turmas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.2 Registro de Chamada em Lote (/chamada)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"turmaId\": 1,\n  \"disciplinaId\": 1,\n  \"dataAula\": \"2026-11-10\",\n  \"registros\": [\n    {\n      \"alunoId\": 4,\n      \"presente\": true,\n      \"observacao\": \"Presente e participativo\"\n    },\n    {\n      \"alunoId\": 5,\n      \"presente\": true,\n      \"observacao\": \"Presente\"\n    },\n    {\n      \"alunoId\": 6,\n      \"presente\": false,\n      \"observacao\": \"Falta n\\u00e3o justificada\"\n    },\n    {\n      \"alunoId\": 7,\n      \"presente\": true,\n      \"observacao\": \"Presente\"\n    },\n    {\n      \"alunoId\": 8,\n      \"presente\": true,\n      \"observacao\": \"Presente\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/chamada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "chamada"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.3 Listar Chamadas Realizadas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/chamadas?turmaId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "chamadas"
+              ],
+              "query": [
+                {
+                  "key": "turmaId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.4 Cadastrar Atividade Avaliativa (/avaliacoes)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"turmaId\": 1,\n  \"disciplinaId\": 1,\n  \"titulo\": \"Prova Semestral - Geometria Espacial e Polin\\u00f4mios\",\n  \"tipo\": \"PROVA\",\n  \"peso\": 2.0,\n  \"notaMaxima\": 10.0,\n  \"dataEntrega\": \"2026-11-20\",\n  \"descricao\": \"Prova presencial com quest\\u00f5es anal\\u00edtico-discursivas no formato da FUVEST 2\\u00aa fase.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/avaliacoes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "avaliacoes"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.5 Listar Avaliações",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/avaliacoes?turmaId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "avaliacoes"
+              ],
+              "query": [
+                {
+                  "key": "turmaId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.6 Lançamento de Notas dos Alunos (/avaliacoes/{id}/notas)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notas\": [\n    {\n      \"alunoId\": 4,\n      \"nota\": 9.8,\n      \"observacao\": \"Excelente clareza expositiva\"\n    },\n    {\n      \"alunoId\": 5,\n      \"nota\": 8.7,\n      \"observacao\": \"Muito bom desenvolvimento\"\n    },\n    {\n      \"alunoId\": 6,\n      \"nota\": 6.0,\n      \"observacao\": \"Atingiu a m\\u00e9dia m\\u00ednima\"\n    },\n    {\n      \"alunoId\": 7,\n      \"nota\": 9.2,\n      \"observacao\": \"\\u00d3timo racioc\\u00ednio l\\u00f3gico\"\n    },\n    {\n      \"alunoId\": 8,\n      \"nota\": 8.0,\n      \"observacao\": \"Bom desempenho geral\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/avaliacoes/1/notas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "avaliacoes",
+                "1",
+                "notas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.7 Consultar Notas da Avaliação",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/avaliacoes/1/notas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "avaliacoes",
+                "1",
+                "notas"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.8 Registrar Plano de Aula (/planos-aula)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"turmaId\": 1,\n  \"disciplinaId\": 1,\n  \"dataAula\": \"2026-11-10\",\n  \"titulo\": \"Introdu\\u00e7\\u00e3o a Limites e Continuidade de Fun\\u00e7\\u00f5es\",\n  \"topicos\": \"Conceito intuitivo de limite, propriedades operat\\u00f3rias, limites fundamentais e indetermina\\u00e7\\u00f5es 0/0.\",\n  \"objetivos\": \"Capacitar os alunos a manipular algebricamente indetermina\\u00e7\\u00f5es e compreender a continuidade gr\\u00e1fica.\",\n  \"materiaisApoio\": \"Slides M\\u00f3dulo 4, v\\u00eddeo explicativo e lista com 10 quest\\u00f5es comentadas.\",\n  \"observacoes\": \"Turma bastante participativa na resolu\\u00e7\\u00e3o no quadro.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/planos-aula",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "planos-aula"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.9 Listar Planos de Aula",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{profToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/diario/planos-aula?turmaId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "diario",
+                "planos-aula"
+              ],
+              "query": [
+                {
+                  "key": "turmaId",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Portal do Aluno (ROLE_ALUNO)",
+      "item": [
+        {
+          "name": "4.1 Consultar Boletim Escolar (/boletim)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alunoToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/aluno/boletim",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aluno",
+                "boletim"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.2 Consultar Frequência e Faltas (/frequencia)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alunoToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/aluno/frequencia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aluno",
+                "frequencia"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4.3 Consultar Linha do Tempo de Aulas (/aulas)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alunoToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/aluno/aulas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "aluno",
+                "aulas"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Validações de Segurança e RBAC",
+      "item": [
+        {
+          "name": "5.1 Teste 403 Forbidden: Aluno tentando acessar /api/admin/professores",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden\", function () { pm.response.to.have.status(403); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alunoToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/professores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "professores"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5.2 Teste 401 Unauthorized: Acesso sem cabeçalho Authorization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401 Unauthorized\", function () { pm.response.to.have.status(401); });"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/professores",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "professores"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,21 +1,21 @@
 -- ======================================================
--- Studi+ — Cursinho Gratuito
--- Esquema de Banco de Dados PostgreSQL
+-- Studi+ — Colégio Sanquim (Cursinho Gratuito)
+-- Esquema de Banco de Dados PostgreSQL & Dados Iniciais
 -- ======================================================
 
--- Criação das tabelas
-
+-- 1. Tabela de Usuários (RBAC)
 CREATE TABLE IF NOT EXISTS usuario (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     usuario VARCHAR(100) UNIQUE,
     senha VARCHAR(255) NOT NULL,
-    perfil VARCHAR(30) NOT NULL CHECK (perfil IN ('ALUNO', 'PROFESSOR', 'COORDENADOR', 'ADMIN')),
+    perfil VARCHAR(30) NOT NULL, -- ROLE_GESTAO, ROLE_PROFESSOR, ROLE_ALUNO
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 2. Tabela de Disciplinas
 CREATE TABLE IF NOT EXISTS disciplina (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS disciplina (
     criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 3. Tabela de Turmas
 CREATE TABLE IF NOT EXISTS turma (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
@@ -37,9 +38,9 @@ CREATE TABLE IF NOT EXISTS turma (
     disciplina_nome VARCHAR(150),
     professor_responsavel VARCHAR(150) NOT NULL,
     periodo VARCHAR(20) NOT NULL,
-    vagas INT NOT NULL DEFAULT 30,
+    vagas INT NOT NULL DEFAULT 35,
     vagas_ocupadas INT NOT NULL DEFAULT 0,
-    status VARCHAR(20) NOT NULL DEFAULT 'ATIVA' CHECK (status IN ('ATIVA', 'INATIVA', 'FINALIZADA')),
+    status VARCHAR(20) NOT NULL DEFAULT 'ATIVA',
     horario VARCHAR(100),
     sala VARCHAR(100),
     data_inicio DATE,
@@ -48,18 +49,20 @@ CREATE TABLE IF NOT EXISTS turma (
     criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 4. Tabela de Matrículas
 CREATE TABLE IF NOT EXISTS matricula (
     id SERIAL PRIMARY KEY,
     matricula_codigo VARCHAR(50) NOT NULL UNIQUE,
     aluno_nome VARCHAR(150) NOT NULL,
+    usuario_id INT REFERENCES usuario(id) ON DELETE SET NULL,
     curso VARCHAR(150) NOT NULL,
     semestre VARCHAR(20) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'ativo' CHECK (status IN ('ativo', 'inativo', 'pendente')),
+    status VARCHAR(20) NOT NULL DEFAULT 'ativo',
     turma_id INT REFERENCES turma(id) ON DELETE SET NULL,
-    usuario_id INT REFERENCES usuario(id) ON DELETE SET NULL,
     criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 5. Tabela de Detalhes dos Professores
 CREATE TABLE IF NOT EXISTS professor_detalhes (
     id SERIAL PRIMARY KEY,
     usuario_id INT REFERENCES usuario(id) ON DELETE CASCADE,
@@ -77,34 +80,63 @@ CREATE TABLE IF NOT EXISTS professor_detalhes (
     criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- ======================================================
--- Dados Iniciais (Seed)
--- ======================================================
+-- 6. Tabela de Chamada (Diário Pedagógico)
+CREATE TABLE IF NOT EXISTS chamada (
+    id SERIAL PRIMARY KEY,
+    turma_id INT NOT NULL REFERENCES turma(id) ON DELETE CASCADE,
+    disciplina_id INT NOT NULL REFERENCES disciplina(id) ON DELETE CASCADE,
+    data_aula DATE NOT NULL,
+    criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_chamada_turma_disc_data UNIQUE (turma_id, disciplina_id, data_aula)
+);
 
--- Senha padrão para usuários iniciais: 123456
-INSERT INTO usuario (nome, email, usuario, senha, perfil, ativo)
-VALUES 
-    ('Aluno Santos', 'aluno@sanquim.edu.br', 'aluno', '123456', 'ALUNO', TRUE),
-    ('Prof. Carlos Santos', 'professor@sanquim.edu.br', 'professor', '123456', 'PROFESSOR', TRUE),
-    ('Coord. Santos', 'coordenador@sanquim.edu.br', 'coordenador', '123456', 'COORDENADOR', TRUE)
-ON CONFLICT (email) DO NOTHING;
+-- 7. Tabela de Registro de Presença Individual
+CREATE TABLE IF NOT EXISTS chamada_registro (
+    id SERIAL PRIMARY KEY,
+    chamada_id INT NOT NULL REFERENCES chamada(id) ON DELETE CASCADE,
+    aluno_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    presente BOOLEAN NOT NULL DEFAULT TRUE,
+    observacao VARCHAR(255),
+    CONSTRAINT uq_chamada_aluno UNIQUE (chamada_id, aluno_id)
+);
 
-INSERT INTO disciplina (nome, codigo, carga_horaria, creditos, periodo, professor_responsavel, departamento, ementa)
-VALUES 
-    ('Matemática Aplicada', 'MAT001', 60, 4, '2025.1', 'Prof. Carlos Santos', 'Departamento de Exatas', 'Funções, derivadas e aplicações práticas para resolução de problemas.'),
-    ('Física Geral', 'FIS001', 80, 5, '2025.1', 'Profa. Ana Oliveira', 'Departamento de Exatas', 'Mecânica newtoniana, leis do movimento e conservação de energia.'),
-    ('Redação e Literatura', 'LET001', 60, 4, '2025.1', 'Profa. Costa', 'Departamento de Humanas', 'Técnicas de redação dissertativo-argumentativa para ENEM e vestibulares.')
-ON CONFLICT (codigo) DO NOTHING;
+-- 8. Tabela de Atividades Avaliativas
+CREATE TABLE IF NOT EXISTS avaliacao (
+    id SERIAL PRIMARY KEY,
+    turma_id INT NOT NULL REFERENCES turma(id) ON DELETE CASCADE,
+    disciplina_id INT NOT NULL REFERENCES disciplina(id) ON DELETE CASCADE,
+    titulo VARCHAR(150) NOT NULL,
+    tipo VARCHAR(50) DEFAULT 'PROVA',
+    peso NUMERIC(4,2) NOT NULL DEFAULT 1.0,
+    nota_maxima NUMERIC(4,2) NOT NULL DEFAULT 10.0,
+    data_entrega DATE,
+    descricao TEXT,
+    criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
-INSERT INTO turma (nome, codigo, disciplina_id, disciplina_nome, professor_responsavel, periodo, vagas, vagas_ocupadas, status, horario, sala, data_inicio, data_fim, observacoes)
-VALUES 
-    ('Turma A - Matemática 2025.1', 'MAT001-A', 1, 'Matemática Aplicada', 'Prof. Carlos Santos', '2025.1', 35, 28, 'ATIVA', 'Seg/Qua 14:00-16:00', 'Sala 101 - Bloco A', '2025-02-10', '2025-06-25', 'Turma preparatória focada em exatas.'),
-    ('Turma B - Física Vestibular', 'FIS001-B', 2, 'Física Geral', 'Profa. Ana Oliveira', '2025.1', 30, 30, 'ATIVA', 'Ter/Qui 16:00-18:00', 'Laboratório 2', '2025-02-11', '2025-06-26', 'Turma intensiva com lista de espera.')
-ON CONFLICT (codigo) DO NOTHING;
+-- 9. Tabela de Lançamento de Notas
+CREATE TABLE IF NOT EXISTS nota (
+    id SERIAL PRIMARY KEY,
+    avaliacao_id INT NOT NULL REFERENCES avaliacao(id) ON DELETE CASCADE,
+    aluno_id INT NOT NULL REFERENCES usuario(id) ON DELETE CASCADE,
+    valor NUMERIC(4,2) NOT NULL,
+    observacao VARCHAR(255),
+    data_lancamento TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_avaliacao_aluno UNIQUE (avaliacao_id, aluno_id)
+);
 
-INSERT INTO matricula (matricula_codigo, aluno_nome, curso, semestre, status, turma_id)
-VALUES 
-    ('2025001', 'João Silva', 'Engenharia de Software', '2025.1', 'ativo', 1),
-    ('2025002', 'Maria Santos', 'Ciência da Computação', '2025.1', 'ativo', 1),
-    ('2025003', 'Pedro Oliveira', 'Administração', '2025.1', 'pendente', 2)
-ON CONFLICT (matricula_codigo) DO NOTHING;
+-- 10. Tabela de Planos de Aula (Linha do tempo)
+CREATE TABLE IF NOT EXISTS plano_aula (
+    id SERIAL PRIMARY KEY,
+    turma_id INT NOT NULL REFERENCES turma(id) ON DELETE CASCADE,
+    disciplina_id INT NOT NULL REFERENCES disciplina(id) ON DELETE CASCADE,
+    data_aula DATE NOT NULL,
+    titulo VARCHAR(150) NOT NULL,
+    topicos TEXT NOT NULL,
+    objetivos TEXT,
+    materiais_apoio TEXT,
+    observacoes TEXT,
+    criado_em TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Dados Iniciais são gerenciados e populados automaticamente pelo CommandLineRunner do Spring Boot (DataLoader.java).

@@ -1,669 +1,719 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { diarioApi, adminApi, authStorage } from '../../services/api';
 import './DashboardProfessor.css';
 
 export const DashboardProfessor = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('frequencia'); // 'frequencia', 'aulas', 'biblioteca', 'plantao', 'questoes', 'faltas-notas', 'plano-docente', 'material-didatico', 'dashboard'
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('chamada'); // 'chamada', 'avaliacoes', 'planos', 'historico'
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
 
-  // Sub tabs
-  const [notasTab, setNotasTab] = useState('notas'); // 'notas', 'faltas', 'historico'
-  const [planoTab, setPlanoTab] = useState('lista'); // 'lista', 'criar'
-  const [materialTab, setMaterialTab] = useState('lista'); // 'lista', 'incluir'
+  // Turmas do professor
+  const [turmas, setTurmas] = useState([]);
+  const [selectedTurmaId, setSelectedTurmaId] = useState('');
+  const [selectedDisciplinaId, setSelectedDisciplinaId] = useState('');
+  const [alunosTurma, setAlunosTurma] = useState([]);
 
-  // Simulated students data
-  const [alunos, setAlunos] = useState([
-    { id: 1, numero: '01', nome: 'Ana Carolina Silva', nota: '8.5', obs: 'Excelente participação', statusFalta: 'presente', justificativa: '' },
-    { id: 2, numero: '02', nome: 'Bruno Almeida Santos', nota: '7.0', obs: '', statusFalta: 'presente', justificativa: '' },
-    { id: 3, numero: '03', nome: 'Carla Mendes Oliveira', nota: '9.2', obs: 'Destaque na prova', statusFalta: 'presente', justificativa: '' },
-    { id: 4, numero: '04', nome: 'Daniel Ferreira Lima', nota: '6.5', obs: 'Precisa de reforço', statusFalta: 'ausente', justificativa: 'Consulta médica' },
-    { id: 5, numero: '05', nome: 'Eduarda Gomes Costa', nota: '8.8', obs: '', statusFalta: 'presente', justificativa: '' },
-    { id: 6, numero: '06', nome: 'Felipe Santos Rocha', nota: '7.5', obs: '', statusFalta: 'justificado', justificativa: 'Atestado' },
-    { id: 7, numero: '07', nome: 'Gabriela Costa Lima', nota: '9.8', obs: 'Nota máxima no trabalho', statusFalta: 'presente', justificativa: '' },
-    { id: 8, numero: '08', nome: 'Henrique Oliveira Silva', nota: '8.0', obs: '', statusFalta: 'presente', justificativa: '' }
-  ]);
+  // Estado da Chamada
+  const [dataAula, setDataAula] = useState(new Date().toISOString().split('T')[0]);
+  const [presencas, setPresencas] = useState({}); // { [alunoId]: { presente: boolean, observacao: string } }
+  const [historicoChamadas, setHistoricoChamadas] = useState([]);
 
-  // Plano Docente list
-  const [planos, setPlanos] = useState([
-    { id: 1, disciplina: 'Matemática', turma: '9º Ano A', ano: '2025', status: 'Ativo', cargaHoraria: '80h' },
-    { id: 2, disciplina: 'Física', turma: '8º Ano B', ano: '2025', status: 'Rascunho', cargaHoraria: '60h' }
-  ]);
-
-  // Material Didático list
-  const [materiais, setMateriais] = useState([
-    { id: 1, nome: 'Apostila - Funções do 1º e 2º Grau', tipo: 'PDF', disciplina: 'Matemática', serie: '9º Ano', status: 'Ativo' },
-    { id: 2, nome: 'Slides - Cinemática Escalar', tipo: 'PPT', disciplina: 'Física', serie: '8º Ano', status: 'Ativo' }
-  ]);
-
-  // Aula Form
-  const [aulaForm, setAulaForm] = useState({
-    turma: '9º Ano A',
-    data: '2025-05-20',
+  // Estado das Avaliações e Notas
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [selectedAvaliacaoId, setSelectedAvaliacaoId] = useState('');
+  const [notasLancamento, setNotasLancamento] = useState({}); // { [alunoId]: { nota: number, observacao: string } }
+  const [novaAvaliacao, setNovaAvaliacao] = useState({
     titulo: '',
-    conteudo: '',
+    tipo: 'PROVA',
+    peso: 1.0,
+    notaMaxima: 10.0,
+    dataEntrega: new Date().toISOString().split('T')[0],
+    descricao: ''
+  });
+
+  // Estado dos Planos de Aula
+  const [planosAula, setPlanosAula] = useState([]);
+  const [novoPlano, setNovoPlano] = useState({
+    dataAula: new Date().toISOString().split('T')[0],
+    titulo: '',
+    topicos: '',
+    objetivos: '',
+    materiaisApoio: '',
     observacoes: ''
   });
 
-  const handleSalvarNotas = () => {
-    alert(`${alunos.filter(a => a.nota).length} notas salvas com sucesso!`);
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
   };
 
-  const handleSalvarFaltas = () => {
-    alert('Faltas e presenças consolidadas com sucesso!');
-  };
-
-  const handleSalvarAula = (e) => {
-    e.preventDefault();
-    if (!aulaForm.titulo) {
-      alert('Informe o título da aula.');
+  useEffect(() => {
+    const currentUser = authStorage.getUser();
+    if (!currentUser) {
+      navigate('/login-professor');
       return;
     }
-    alert(`Aula "${aulaForm.titulo}" registrada com sucesso!`);
-    setAulaForm({ turma: '9º Ano A', data: '2025-05-20', titulo: '', conteudo: '', observacoes: '' });
+    setUser(currentUser);
+    carregarTurmas();
+  }, [navigate]);
+
+  const carregarTurmas = async () => {
+    try {
+      setLoading(true);
+      const turmasData = await diarioApi.getMinhasTurmas();
+      setTurmas(turmasData || []);
+      if (turmasData && turmasData.length > 0) {
+        const primeira = turmasData[0];
+        setSelectedTurmaId(primeira.id.toString());
+        setSelectedDisciplinaId(primeira.disciplinaId ? primeira.disciplinaId.toString() : '1');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar turmas:', err);
+      showToast('Erro ao carregar turmas do docente.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Quando a turma selecionada mudar, carrega os dados vinculados
+  useEffect(() => {
+    if (!selectedTurmaId) return;
+
+    const t = turmas.find(item => item.id.toString() === selectedTurmaId);
+    if (t && t.disciplinaId) {
+      setSelectedDisciplinaId(t.disciplinaId.toString());
+    }
+
+    carregarDadosTurma(Number(selectedTurmaId), t?.disciplinaId || 1);
+  }, [selectedTurmaId, turmas]);
+
+  const carregarDadosTurma = async (tId, dId) => {
+    try {
+      // 1. Busca alunos matriculados nessa turma
+      const [matriculasData, chamadasData, avaliacoesData, planosData] = await Promise.all([
+        adminApi.getMatriculas().catch(() => []),
+        diarioApi.getChamadas(tId, dId).catch(() => []),
+        diarioApi.getAvaliacoes(tId, dId).catch(() => []),
+        diarioApi.getPlanosAula(tId, dId).catch(() => [])
+      ]);
+
+      const alunosDaTurma = (matriculasData || [])
+        .filter(m => m.turmaId === tId && m.usuarioId)
+        .map(m => ({
+          id: m.usuarioId,
+          matriculaCodigo: m.matriculaCodigo,
+          nome: m.alunoNome
+        }));
+
+      // Se a lista de matrículas estiver vazia no mock local, busca todos os alunos como fallback
+      if (alunosDaTurma.length === 0) {
+        const todosAlunos = await adminApi.getAlunos().catch(() => []);
+        const fallback = todosAlunos.map(a => ({
+          id: a.usuarioId,
+          matriculaCodigo: a.matriculaCodigo,
+          nome: a.nome
+        }));
+        setAlunosTurma(fallback);
+        inicializarPresencasENotas(fallback);
+      } else {
+        setAlunosTurma(alunosDaTurma);
+        inicializarPresencasENotas(alunosDaTurma);
+      }
+
+      setHistoricoChamadas(chamadasData || []);
+      setAvaliacoes(avaliacoesData || []);
+      if (avaliacoesData && avaliacoesData.length > 0) {
+        setSelectedAvaliacaoId(avaliacoesData[0].id.toString());
+      }
+      setPlanosAula(planosData || []);
+    } catch (err) {
+      console.error('Erro ao carregar dados da turma:', err);
+    }
+  };
+
+  const inicializarPresencasENotas = (alunosList) => {
+    const pInit = {};
+    const nInit = {};
+    alunosList.forEach(a => {
+      pInit[a.id] = { presente: true, observacao: '' };
+      nInit[a.id] = { nota: 8.0, observacao: '' };
+    });
+    setPresencas(pInit);
+    setNotasLancamento(nInit);
+  };
+
+  // Carrega notas da avaliação selecionada
+  useEffect(() => {
+    if (!selectedAvaliacaoId) return;
+    const fetchNotas = async () => {
+      try {
+        const notasExistentes = await diarioApi.getNotas(Number(selectedAvaliacaoId));
+        if (notasExistentes && notasExistentes.length > 0) {
+          const mapaNotas = { ...notasLancamento };
+          notasExistentes.forEach(n => {
+            mapaNotas[n.alunoId] = { nota: n.valor, observacao: n.observacao || '' };
+          });
+          setNotasLancamento(mapaNotas);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar notas:', err);
+      }
+    };
+    fetchNotas();
+  }, [selectedAvaliacaoId]);
+
+  const handleSalvarChamada = async (e) => {
+    e.preventDefault();
+    if (!selectedTurmaId || !selectedDisciplinaId) {
+      showToast('Selecione uma turma e disciplina válidas.', 'error');
+      return;
+    }
+
+    try {
+      const registros = alunosTurma.map(a => ({
+        alunoId: a.id,
+        presente: presencas[a.id]?.presente ?? true,
+        observacao: presencas[a.id]?.observacao || ''
+      }));
+
+      const payload = {
+        turmaId: Number(selectedTurmaId),
+        disciplinaId: Number(selectedDisciplinaId),
+        dataAula: dataAula,
+        registros: registros
+      };
+
+      const res = await diarioApi.registrarChamada(payload);
+      showToast(`Chamada registrada com sucesso! ${res.totalPresentes} presentes, ${res.totalAusentes} ausentes.`);
+      
+      // Atualiza histórico
+      const chData = await diarioApi.getChamadas(Number(selectedTurmaId), Number(selectedDisciplinaId));
+      setHistoricoChamadas(chData || []);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleMarcarTodos = (presenteVal) => {
+    const updated = { ...presencas };
+    alunosTurma.forEach(a => {
+      updated[a.id] = { ...updated[a.id], presente: presenteVal };
+    });
+    setPresencas(updated);
+  };
+
+  const handleCriarAvaliacao = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...novaAvaliacao,
+        turmaId: Number(selectedTurmaId),
+        disciplinaId: Number(selectedDisciplinaId),
+        peso: Number(novaAvaliacao.peso),
+        notaMaxima: Number(novaAvaliacao.notaMaxima)
+      };
+      const res = await diarioApi.cadastrarAvaliacao(payload);
+      showToast(`Atividade avaliativa "${res.titulo}" cadastrada com sucesso!`);
+      setNovaAvaliacao({
+        titulo: '',
+        tipo: 'PROVA',
+        peso: 1.0,
+        notaMaxima: 10.0,
+        dataEntrega: new Date().toISOString().split('T')[0],
+        descricao: ''
+      });
+      // Recarrega avaliações
+      const avs = await diarioApi.getAvaliacoes(Number(selectedTurmaId), Number(selectedDisciplinaId));
+      setAvaliacoes(avs || []);
+      setSelectedAvaliacaoId(res.id.toString());
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleSalvarNotas = async (e) => {
+    e.preventDefault();
+    if (!selectedAvaliacaoId) {
+      showToast('Selecione uma avaliação para lançar as notas.', 'error');
+      return;
+    }
+
+    try {
+      const notasList = alunosTurma.map(a => ({
+        alunoId: a.id,
+        nota: Number(notasLancamento[a.id]?.nota || 0.0),
+        observacao: notasLancamento[a.id]?.observacao || ''
+      }));
+
+      await diarioApi.lancarNotas(Number(selectedAvaliacaoId), notasList);
+      showToast('Notas dos discentes atualizadas com sucesso no diário!');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleCriarPlanoAula = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...novoPlano,
+        turmaId: Number(selectedTurmaId),
+        disciplinaId: Number(selectedDisciplinaId)
+      };
+      await diarioApi.registrarPlanoAula(payload);
+      showToast(`Plano de aula "${novoPlano.titulo}" registrado com sucesso!`);
+      setNovoPlano({
+        dataAula: new Date().toISOString().split('T')[0],
+        titulo: '',
+        topicos: '',
+        objetivos: '',
+        materiaisApoio: '',
+        observacoes: ''
+      });
+      // Recarrega planos
+      const pls = await diarioApi.getPlanosAula(Number(selectedTurmaId), Number(selectedDisciplinaId));
+      setPlanosAula(pls || []);
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  const handleLogout = () => {
+    authStorage.clearAuth();
+    navigate('/');
   };
 
   return (
     <div className="page-dashboard-professor">
+      {toast && (
+        <div className={`toast-notification ${toast.type}`}>
+          <i className={toast.type === 'error' ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle'}></i>
+          <span>{toast.msg}</span>
+        </div>
+      )}
+
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-          <img src="/assets/img/logo.webp" alt="Logo da Escola" onError={(e) => { e.target.style.display = 'none'; }} />
-          <h2>Portal do Professor</h2>
+          <h2>Studi<i>+</i> Docente</h2>
+          <span className="role-chip prof">ROLE_PROFESSOR</span>
         </div>
 
         <ul className="sidebar-menu">
           <li>
-            <a 
-              href="#dashboard" 
-              className={activeSection === 'dashboard' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('dashboard'); }}
-            >
-              <i className="fas fa-home"></i>
-              <span>Dashboard</span>
+            <a href="#chamada" className={activeTab === 'chamada' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('chamada'); }}>
+              <i className="fas fa-clipboard-check"></i>
+              <span>Chamada em Lote (US03)</span>
             </a>
           </li>
           <li>
-            <a 
-              href="#frequencia" 
-              className={activeSection === 'frequencia' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('frequencia'); }}
-            >
-              <i className="fas fa-user-check"></i>
-              <span>Frequência</span>
+            <a href="#avaliacoes" className={activeTab === 'avaliacoes' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('avaliacoes'); }}>
+              <i className="fas fa-file-signature"></i>
+              <span>Avaliações & Notas</span>
             </a>
           </li>
           <li>
-            <a 
-              href="#aulas" 
-              className={activeSection === 'aulas' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('aulas'); }}
-            >
-              <i className="fas fa-chalkboard-teacher"></i>
-              <span>Aulas</span>
+            <a href="#planos" className={activeTab === 'planos' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('planos'); }}>
+              <i className="fas fa-calendar-alt"></i>
+              <span>Planos de Aula (US04)</span>
             </a>
           </li>
           <li>
-            <a 
-              href="#biblioteca" 
-              className={activeSection === 'biblioteca' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('biblioteca'); }}
-            >
-              <i className="fas fa-book"></i>
-              <span>Biblioteca</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#faltas-notas" 
-              className={activeSection === 'faltas-notas' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('faltas-notas'); }}
-            >
-              <i className="fas fa-clipboard-list"></i>
-              <span>Faltas e Notas</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#plano-docente" 
-              className={activeSection === 'plano-docente' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('plano-docente'); }}
-            >
-              <i className="fas fa-file-alt"></i>
-              <span>Plano Docente</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#material-didatico" 
-              className={activeSection === 'material-didatico' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('material-didatico'); }}
-            >
-              <i className="fas fa-box-open"></i>
-              <span>Material Didático</span>
-            </a>
-          </li>
-          <li>
-            <a href="#sair" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
-              <i className="fas fa-sign-out-alt"></i>
-              <span>Sair / Início</span>
+            <a href="#historico" className={activeTab === 'historico' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('historico'); }}>
+              <i className="fas fa-history"></i>
+              <span>Diário de Chamadas</span>
             </a>
           </li>
         </ul>
 
         <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-avatar">P</div>
-            <div className="user-name">Prof. Santos</div>
-          </div>
+          <a href="/swagger-ui.html" target="_blank" rel="noreferrer" className="btn-swagger-sidebar">
+            <i className="fas fa-code"></i> Swagger OpenAPI
+          </a>
+          <button className="btn-logout" onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt"></i> Sair do Sistema
+          </button>
         </div>
       </aside>
 
-      {/* Conteúdo Principal */}
+      {/* Main Content */}
       <main className="main-content">
-        <header className="header">
-          <div className="page-title">
-            <h1>Dashboard</h1>
-            <p>Bem-vindo(a) ao Portal do Professor</p>
+        <header className="content-header">
+          <div className="header-title">
+            <h1>Diário de Classe & Módulo Pedagógico</h1>
+            <p>Colégio Sanquim — Gestão de presenças, notas e planejamento de ensino</p>
           </div>
-
-          <div className="search-bar">
-            <input type="text" placeholder="Pesquisar..." />
-            <button><i className="fas fa-search"></i></button>
+          <div className="header-user">
+            <div className="user-avatar prof"><i className="fas fa-chalkboard-teacher"></i></div>
+            <div className="user-details">
+              <strong>{user?.nome || 'Prof. Carlos Santos'}</strong>
+              <small>{user?.email || 'carlos.santos@sanquim.br'}</small>
+            </div>
           </div>
         </header>
 
-        {/* Cards de Atalho */}
-        <div className="dashboard">
-          <div 
-            className={`dashboard-card ${activeSection === 'frequencia' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('frequencia')}
-          >
-            <i className="fas fa-user-check"></i>
-            <h3>Frequência</h3>
-            <p>Registre presença dos alunos</p>
+        {/* Seletor de Turma Ativa */}
+        <section className="turma-selector-bar">
+          <div className="selector-group">
+            <label htmlFor="selectTurma"><i className="fas fa-users-class"></i> Turma em Atividade:</label>
+            <select 
+              id="selectTurma" 
+              value={selectedTurmaId} 
+              onChange={(e) => setSelectedTurmaId(e.target.value)}
+              className="custom-select"
+            >
+              {turmas.map(t => (
+                <option key={t.id} value={t.id}>{t.nome} — {t.disciplinaNome} ({t.vagasOcupadas} alunos matriculados)</option>
+              ))}
+            </select>
           </div>
 
-          <div 
-            className={`dashboard-card ${activeSection === 'aulas' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('aulas')}
-          >
-            <i className="fas fa-chalkboard-teacher"></i>
-            <h3>Aulas</h3>
-            <p>Registre aulas ministradas</p>
+          <div className="turma-quick-info">
+            <span>Período: <strong>2026.1</strong></span>
+            <span>Total Alunos: <strong>{alunosTurma.length}</strong></span>
           </div>
+        </section>
 
-          <div 
-            className={`dashboard-card ${activeSection === 'biblioteca' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('biblioteca')}
-          >
-            <i className="fas fa-book"></i>
-            <h3>Biblioteca Digital</h3>
-            <p>Acesse materiais didáticos</p>
+        {loading ? (
+          <div className="loading-state">
+            <i className="fas fa-spinner fa-spin"></i> Carregando diário de classe...
           </div>
+        ) : (
+          <div className="dashboard-body">
+            {/* 1. CHAMADA EM LOTE (US03) */}
+            {activeTab === 'chamada' && (
+              <div className="tab-pane">
+                <div className="chamada-action-card">
+                  <div className="date-control">
+                    <label htmlFor="dataAulaInput"><i className="fas fa-calendar-day"></i> Data da Aula:</label>
+                    <input 
+                      id="dataAulaInput" 
+                      type="date" 
+                      value={dataAula} 
+                      onChange={(e) => setDataAula(e.target.value)} 
+                      className="input-date"
+                    />
+                  </div>
 
-          <div 
-            className={`dashboard-card ${activeSection === 'faltas-notas' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('faltas-notas')}
-          >
-            <i className="fas fa-clipboard-list"></i>
-            <h3>Faltas e Notas</h3>
-            <p>Gerencie faltas e notas</p>
-          </div>
+                  <div className="quick-actions-box">
+                    <button type="button" className="btn-toggle-all present" onClick={() => handleMarcarTodos(true)}>
+                      <i className="fas fa-check-double"></i> Todos Presentes
+                    </button>
+                    <button type="button" className="btn-toggle-all absent" onClick={() => handleMarcarTodos(false)}>
+                      <i className="fas fa-times-circle"></i> Todos Ausentes
+                    </button>
+                  </div>
+                </div>
 
-          <div 
-            className={`dashboard-card ${activeSection === 'plano-docente' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('plano-docente')}
-          >
-            <i className="fas fa-file-alt"></i>
-            <h3>Plano Docente</h3>
-            <p>Crie e gerencie seus planos</p>
-          </div>
+                <div className="card-box">
+                  <div className="box-header">
+                    <h2><i className="fas fa-user-check text-primary"></i> Lista de Chamada Digital — Turma Ativa</h2>
+                    <span className="badge-info">{alunosTurma.length} estudantes enturmados</span>
+                  </div>
 
-          <div 
-            className={`dashboard-card ${activeSection === 'material-didatico' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('material-didatico')}
-          >
-            <i className="fas fa-box-open"></i>
-            <h3>Material Didático</h3>
-            <p>Organize seus materiais</p>
-          </div>
-        </div>
+                  <form onSubmit={handleSalvarChamada}>
+                    <div className="table-responsive">
+                      <table className="custom-table chamada-table">
+                        <thead>
+                          <tr>
+                            <th>Matrícula</th>
+                            <th>Nome do Discente</th>
+                            <th className="text-center">Status de Presença</th>
+                            <th>Observação / Justificativa</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {alunosTurma.map((aluno) => {
+                            const isPresente = presencas[aluno.id]?.presente ?? true;
+                            return (
+                              <tr key={aluno.id} className={isPresente ? 'row-present' : 'row-absent'}>
+                                <td><code>{aluno.matriculaCodigo || 'S/M'}</code></td>
+                                <td><strong>{aluno.nome}</strong></td>
+                                <td className="text-center">
+                                  <div className="presence-switch">
+                                    <button
+                                      type="button"
+                                      className={`btn-presence ${isPresente ? 'active-present' : ''}`}
+                                      onClick={() => setPresencas({
+                                        ...presencas,
+                                        [aluno.id]: { ...presencas[aluno.id], presente: true }
+                                      })}
+                                    >
+                                      <i className="fas fa-check"></i> Presente
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className={`btn-presence ${!isPresente ? 'active-absent' : ''}`}
+                                      onClick={() => setPresencas({
+                                        ...presencas,
+                                        [aluno.id]: { ...presencas[aluno.id], presente: false }
+                                      })}
+                                    >
+                                      <i className="fas fa-times"></i> Ausente
+                                    </button>
+                                  </div>
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    placeholder="Ex: Atestado médico, participação em evento..."
+                                    value={presencas[aluno.id]?.observacao || ''}
+                                    onChange={(e) => setPresencas({
+                                      ...presencas,
+                                      [aluno.id]: { ...presencas[aluno.id], observacao: e.target.value }
+                                    })}
+                                    className="input-obs"
+                                  />
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
 
-        {/* Seções Principais */}
-        <div className="main-sections">
-          {/* Seção de Frequência */}
-          {activeSection === 'frequencia' && (
-            <div className="section-card fadeIn" id="frequencia-content">
-              <div className="section-header">
-                <h2>Registro de Frequência</h2>
-                <button className="btn btn-primary" onClick={handleSalvarFaltas}>Salvar Chamada</button>
+                    <div className="form-submit-footer">
+                      <button type="submit" className="btn-salvar-chamada">
+                        <i className="fas fa-save"></i> Salvar Chamada em Lote na API (/api/diario/chamada)
+                      </button>
+                    </div>
+                  </form>
+                </div>
               </div>
+            )}
 
-              <div className="search-select">
-                <select defaultValue="9º Ano A">
-                  <option>9º Ano A</option>
-                  <option>9º Ano B</option>
-                  <option>8º Ano A</option>
-                  <option>8º Ano B</option>
-                </select>
-                <input type="date" defaultValue="2025-05-20" style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }} />
-                <button><i className="fas fa-search"></i> Filtrar</button>
-              </div>
-
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nº</th>
-                    <th>Nome do Aluno</th>
-                    <th>Status Presença</th>
-                    <th>Justificativa</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alunos.map(aluno => (
-                    <tr key={aluno.id}>
-                      <td>{aluno.numero}</td>
-                      <td>{aluno.nome}</td>
-                      <td>
-                        <select 
-                          value={aluno.statusFalta}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setAlunos(prev => prev.map(a => a.id === aluno.id ? { ...a, statusFalta: val } : a));
-                          }}
-                          style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ddd' }}
-                        >
-                          <option value="presente">Presente</option>
-                          <option value="ausente">Ausente</option>
-                          <option value="justificado">Justificado</option>
-                        </select>
-                      </td>
-                      <td>
+            {/* 2. AVALIAÇÕES E LANÇAMENTO DE NOTAS */}
+            {activeTab === 'avaliacoes' && (
+              <div className="tab-pane">
+                <div className="dual-grid">
+                  <div className="card-box">
+                    <h2><i className="fas fa-plus-circle text-primary"></i> Cadastrar Nova Atividade Avaliativa</h2>
+                    <form onSubmit={handleCriarAvaliacao} className="compact-form">
+                      <div className="form-group">
+                        <label>Título da Avaliação *</label>
                         <input 
                           type="text" 
-                          placeholder="Observação / Justificativa..." 
-                          value={aluno.justificativa}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setAlunos(prev => prev.map(a => a.id === aluno.id ? { ...a, justificativa: val } : a));
-                          }}
-                          style={{ width: '100%', padding: '5px', border: '1px solid #ddd', borderRadius: '4px' }}
+                          placeholder="Ex: Prova Semestral de Matemática" 
+                          value={novaAvaliacao.titulo} 
+                          onChange={(e) => setNovaAvaliacao({...novaAvaliacao, titulo: e.target.value})} 
+                          required 
                         />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-
-              <div style={{ marginTop: '20px', textAlign: 'right' }}>
-                <button className="btn btn-primary" onClick={handleSalvarFaltas}>
-                  Confirmar e Salvar Chamada
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Seção de Aulas */}
-          {activeSection === 'aulas' && (
-            <div className="section-card fadeIn" id="aulas-content">
-              <div className="section-header">
-                <h2>Registro de Aulas Ministradas</h2>
-              </div>
-
-              <form onSubmit={handleSalvarAula}>
-                <div className="form-group">
-                  <label htmlFor="aula-turma">Turma</label>
-                  <select 
-                    id="aula-turma"
-                    value={aulaForm.turma}
-                    onChange={(e) => setAulaForm({ ...aulaForm, turma: e.target.value })}
-                  >
-                    <option>9º Ano A</option>
-                    <option>9º Ano B</option>
-                    <option>8º Ano A</option>
-                    <option>8º Ano B</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="aula-data">Data</label>
-                  <input 
-                    type="date" 
-                    id="aula-data"
-                    value={aulaForm.data}
-                    onChange={(e) => setAulaForm({ ...aulaForm, data: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="aula-titulo">Título da Aula</label>
-                  <input 
-                    type="text" 
-                    id="aula-titulo" 
-                    placeholder="Ex: Equações do 2º grau e Fórmula de Bhaskara"
-                    value={aulaForm.titulo}
-                    onChange={(e) => setAulaForm({ ...aulaForm, titulo: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="aula-conteudo">Conteúdo Trabalhado</label>
-                  <textarea 
-                    id="aula-conteudo" 
-                    rows="5" 
-                    placeholder="Descreva o conteúdo trabalhado na aula..."
-                    value={aulaForm.conteudo}
-                    onChange={(e) => setAulaForm({ ...aulaForm, conteudo: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="aula-observacoes">Observações</label>
-                  <textarea 
-                    id="aula-observacoes" 
-                    rows="3" 
-                    placeholder="Observações adicionais sobre o engajamento dos alunos..."
-                    value={aulaForm.observacoes}
-                    onChange={(e) => setAulaForm({ ...aulaForm, observacoes: e.target.value })}
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary">
-                  <i className="fas fa-save"></i> Registrar Aula
-                </button>
-              </form>
-            </div>
-          )}
-
-          {/* Seção de Biblioteca */}
-          {activeSection === 'biblioteca' && (
-            <div className="section-card fadeIn" id="biblioteca-content">
-              <div className="section-header">
-                <h2>Biblioteca Digital</h2>
-              </div>
-              <div className="material-grid">
-                <div className="material-card">
-                  <div className="material-thumbnail"><i className="fas fa-file-pdf"></i></div>
-                  <div className="material-info">
-                    <h3>Manual do Professor - BNCC</h3>
-                    <p>Documento • PDF • 10MB</p>
-                    <button className="btn btn-sm btn-primary" onClick={() => alert('Download do arquivo iniciado...')}>Download</button>
-                  </div>
-                </div>
-                <div className="material-card">
-                  <div className="material-thumbnail"><i className="fas fa-file-alt"></i></div>
-                  <div className="material-info">
-                    <h3>Banco de Provas Anteriores</h3>
-                    <p>Exames • ZIP • 45MB</p>
-                    <button className="btn btn-sm btn-primary" onClick={() => alert('Download do arquivo iniciado...')}>Download</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Seção de Faltas e Notas */}
-          {activeSection === 'faltas-notas' && (
-            <div className="section-card fadeIn" id="faltas-notas-content">
-              <div className="section-header">
-                <h2>Faltas e Notas</h2>
-                <div className="action-buttons">
-                  <button className="btn btn-primary" onClick={() => alert('Relatório consolidado exportado em PDF!')}>
-                    Exportar Relatório
-                  </button>
-                </div>
-              </div>
-
-              <div className="tab-nav">
-                <button 
-                  className={`tab-button ${notasTab === 'notas' ? 'active' : ''}`}
-                  onClick={() => setNotasTab('notas')}
-                >
-                  Lançamento de Notas
-                </button>
-                <button 
-                  className={`tab-button ${notasTab === 'historico' ? 'active' : ''}`}
-                  onClick={() => setNotasTab('historico')}
-                >
-                  Histórico Consolidado
-                </button>
-              </div>
-
-              {notasTab === 'notas' ? (
-                <div>
-                  <div className="search-select" style={{ marginBottom: '20px' }}>
-                    <select id="turma-notas">
-                      <option>9º Ano A - Matemática</option>
-                      <option>9º Ano B - Matemática</option>
-                    </select>
-                    <select id="bimestre-notas">
-                      <option>1º Bimestre</option>
-                      <option>2º Bimestre</option>
-                      <option>3º Bimestre</option>
-                      <option>4º Bimestre</option>
-                    </select>
-                    <select id="tipo-avaliacao">
-                      <option>Prova Bimestral</option>
-                      <option>Trabalho em Grupo</option>
-                      <option>Lista de Exercícios</option>
-                    </select>
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Tipo</label>
+                          <select value={novaAvaliacao.tipo} onChange={(e) => setNovaAvaliacao({...novaAvaliacao, tipo: e.target.value})}>
+                            <option value="PROVA">Prova Escrita</option>
+                            <option value="TRABALHO">Trabalho em Grupo</option>
+                            <option value="SEMINARIO">Seminário</option>
+                            <option value="SIMULADO">Simulado Vestibular</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label>Peso</label>
+                          <input type="number" step="0.1" min="0.1" value={novaAvaliacao.peso} onChange={(e) => setNovaAvaliacao({...novaAvaliacao, peso: e.target.value})} required />
+                        </div>
+                      </div>
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Nota Máxima</label>
+                          <input type="number" step="0.5" value={novaAvaliacao.notaMaxima} onChange={(e) => setNovaAvaliacao({...novaAvaliacao, notaMaxima: e.target.value})} required />
+                        </div>
+                        <div className="form-group">
+                          <label>Data de Aplicação / Entrega</label>
+                          <input type="date" value={novaAvaliacao.dataEntrega} onChange={(e) => setNovaAvaliacao({...novaAvaliacao, dataEntrega: e.target.value})} required />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Descrição e Critérios</label>
+                        <textarea rows="3" placeholder="Critérios avaliativos e conteúdo cobrado..." value={novaAvaliacao.descricao} onChange={(e) => setNovaAvaliacao({...novaAvaliacao, descricao: e.target.value})}></textarea>
+                      </div>
+                      <button type="submit" className="btn-submit-form"><i className="fas fa-plus"></i> Salvar Avaliação</button>
+                    </form>
                   </div>
 
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Nº</th>
-                        <th>Nome do Aluno</th>
-                        <th>Nota (0.0 a 10.0)</th>
-                        <th>Observações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {alunos.map(aluno => (
-                        <tr key={aluno.id}>
-                          <td>{aluno.numero}</td>
-                          <td>{aluno.nome}</td>
-                          <td>
-                            <input 
-                              type="number" 
-                              min="0" 
-                              max="10" 
-                              step="0.1" 
-                              value={aluno.nota}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setAlunos(prev => prev.map(a => a.id === aluno.id ? { ...a, nota: val } : a));
-                              }}
-                              style={{ width: '80px', padding: '5px', border: '1px solid #ddd', borderRadius: '4px' }}
-                            />
-                          </td>
-                          <td>
-                            <input 
-                              type="text" 
-                              value={aluno.obs}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setAlunos(prev => prev.map(a => a.id === aluno.id ? { ...a, obs: val } : a));
-                              }}
-                              placeholder="Observações do desempenho..."
-                              style={{ width: '250px', padding: '5px', border: '1px solid #ddd', borderRadius: '4px' }}
-                            />
-                          </td>
-                        </tr>
+                  <div className="card-box">
+                    <div className="box-header">
+                      <h2><i className="fas fa-edit text-success"></i> Lançamento de Notas dos Alunos</h2>
+                    </div>
+
+                    <div className="selector-group mb-4">
+                      <label htmlFor="selectAvaliacao">Selecione a Avaliação:</label>
+                      <select
+                        id="selectAvaliacao"
+                        value={selectedAvaliacaoId}
+                        onChange={(e) => setSelectedAvaliacaoId(e.target.value)}
+                        className="custom-select"
+                      >
+                        {avaliacoes.map(av => (
+                          <option key={av.id} value={av.id}>{av.titulo} (Peso {av.peso} • Máx {av.notaMaxima})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <form onSubmit={handleSalvarNotas}>
+                      <div className="table-responsive max-h">
+                        <table className="custom-table">
+                          <thead>
+                            <tr>
+                              <th>Estudante</th>
+                              <th style={{ width: '120px' }}>Nota (0-10)</th>
+                              <th>Feedback / Observação</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {alunosTurma.map(aluno => (
+                              <tr key={aluno.id}>
+                                <td><strong>{aluno.nome}</strong></td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    step="0.1"
+                                    min="0"
+                                    max="10"
+                                    value={notasLancamento[aluno.id]?.nota ?? ''}
+                                    onChange={(e) => setNotasLancamento({
+                                      ...notasLancamento,
+                                      [aluno.id]: { ...notasLancamento[aluno.id], nota: e.target.value }
+                                    })}
+                                    className="input-nota"
+                                    required
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    type="text"
+                                    placeholder="Ex: Excelente raciocínio"
+                                    value={notasLancamento[aluno.id]?.observacao || ''}
+                                    onChange={(e) => setNotasLancamento({
+                                      ...notasLancamento,
+                                      [aluno.id]: { ...notasLancamento[aluno.id], observacao: e.target.value }
+                                    })}
+                                    className="input-obs"
+                                  />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="form-submit-footer">
+                        <button type="submit" className="btn-salvar-chamada">
+                          <i className="fas fa-check"></i> Lançar Notas na API (/api/diario/avaliacoes/{'{id}'}/notas)
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. PLANOS DE AULA (US04, US05) */}
+            {activeTab === 'planos' && (
+              <div className="tab-pane">
+                <div className="dual-grid">
+                  <div className="card-box">
+                    <h2><i className="fas fa-plus text-primary"></i> Registrar Plano de Aula & Conteúdo</h2>
+                    <form onSubmit={handleCriarPlanoAula} className="compact-form">
+                      <div className="form-row">
+                        <div className="form-group">
+                          <label>Data da Aula *</label>
+                          <input type="date" value={novoPlano.dataAula} onChange={(e) => setNovoPlano({...novoPlano, dataAula: e.target.value})} required />
+                        </div>
+                        <div className="form-group">
+                          <label>Título da Aula *</label>
+                          <input type="text" placeholder="Ex: Geometria Analítica" value={novoPlano.titulo} onChange={(e) => setNovoPlano({...novoPlano, titulo: e.target.value})} required />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label>Resumo dos Tópicos Ministrados *</label>
+                        <textarea rows="3" placeholder="Detalhamento do conteúdo abordado em sala..." value={novoPlano.topicos} onChange={(e) => setNovoPlano({...novoPlano, topicos: e.target.value})} required></textarea>
+                      </div>
+                      <div className="form-group">
+                        <label>Objetivos Pedagógicos</label>
+                        <input type="text" placeholder="Competências e habilidades desenvolvidas" value={novoPlano.objetivos} onChange={(e) => setNovoPlano({...novoPlano, objetivos: e.target.value})} />
+                      </div>
+                      <div className="form-group">
+                        <label>Materiais de Apoio / Referências</label>
+                        <input type="text" placeholder="Slides, capítulos de livros, apostilas..." value={novoPlano.materiaisApoio} onChange={(e) => setNovoPlano({...novoPlano, materiaisApoio: e.target.value})} />
+                      </div>
+                      <button type="submit" className="btn-submit-form"><i className="fas fa-save"></i> Registrar Plano de Aula</button>
+                    </form>
+                  </div>
+
+                  <div className="card-box">
+                    <h2>Linha do Tempo Pedagógica ({planosAula.length})</h2>
+                    <div className="timeline-container max-h">
+                      {planosAula.map(p => (
+                        <div key={p.id} className="timeline-item">
+                          <div className="timeline-badge"><i className="fas fa-chalkboard"></i></div>
+                          <div className="timeline-content">
+                            <span className="timeline-date">{p.dataAula}</span>
+                            <h3>{p.titulo}</h3>
+                            <p><strong>Tópicos:</strong> {p.topicos}</p>
+                            {p.objetivos && <p><strong>Objetivos:</strong> {p.objetivos}</p>}
+                            {p.materiaisApoio && <small><strong>Materiais:</strong> {p.materiaisApoio}</small>}
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-
-                  <div style={{ marginTop: '20px', textAlign: 'right' }}>
-                    <button className="btn btn-primary" onClick={handleSalvarNotas}>Salvar Notas</button>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div>
-                  <h3>Consolidado Anual</h3>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Aluno</th>
-                        <th>1º Bim</th>
-                        <th>2º Bim</th>
-                        <th>3º Bim</th>
-                        <th>4º Bim</th>
-                        <th>Média Final</th>
-                        <th>Situação</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {alunos.map(aluno => {
-                        const m = parseFloat(aluno.nota || '7.5');
-                        const sit = m >= 7.0 ? 'Aprovado' : 'Recuperação';
-                        return (
-                          <tr key={aluno.id}>
-                            <td>{aluno.nome}</td>
-                            <td>{aluno.nota}</td>
-                            <td>8.0</td>
-                            <td>8.5</td>
-                            <td>8.0</td>
-                            <td><strong>{aluno.nota}</strong></td>
-                            <td>
-                              <span className={`status-badge ${sit === 'Aprovado' ? 'status-presente' : 'status-ausente'}`}>
-                                {sit}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+              </div>
+            )}
+
+            {/* 4. HISTÓRICO DE CHAMADAS */}
+            {activeTab === 'historico' && (
+              <div className="tab-pane">
+                <div className="card-box">
+                  <div className="box-header">
+                    <h2><i className="fas fa-history text-primary"></i> Diário de Chamadas Realizadas na Turma</h2>
+                    <span className="badge-info">{historicoChamadas.length} aulas registradas</span>
+                  </div>
+
+                  <div className="table-responsive">
+                    <table className="custom-table">
+                      <thead>
+                        <tr>
+                          <th>Data da Aula</th>
+                          <th>Turma</th>
+                          <th>Disciplina</th>
+                          <th>Total Alunos</th>
+                          <th>Presentes</th>
+                          <th>Ausentes</th>
+                          <th>% Assiduidade</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {historicoChamadas.map(ch => {
+                          const pct = ch.totalAlunos > 0 ? Math.round((ch.totalPresentes / ch.totalAlunos) * 100) : 0;
+                          return (
+                            <tr key={ch.id}>
+                              <td><strong>{ch.dataAula}</strong></td>
+                              <td>{ch.turmaNome}</td>
+                              <td>{ch.disciplinaNome}</td>
+                              <td>{ch.totalAlunos}</td>
+                              <td><span className="badge-active">{ch.totalPresentes} presentes</span></td>
+                              <td><span className="badge-danger">{ch.totalAusentes} ausentes</span></td>
+                              <td>
+                                <strong>{pct}%</strong>
+                                <div className="mini-progress"><div style={{ width: `${pct}%`, background: pct < 75 ? '#ef4444' : '#10b981' }}></div></div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-
-          {/* Seção de Plano Docente */}
-          {activeSection === 'plano-docente' && (
-            <div className="section-card fadeIn" id="plano-docente-content">
-              <div className="section-header">
-                <h2>Plano Docente</h2>
-                <button className="btn btn-primary" onClick={() => setPlanoTab(planoTab === 'lista' ? 'criar' : 'lista')}>
-                  {planoTab === 'lista' ? '+ Novo Plano' : 'Ver Lista de Planos'}
-                </button>
               </div>
-
-              {planoTab === 'lista' ? (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Disciplina</th>
-                      <th>Turma</th>
-                      <th>Ano Letivo</th>
-                      <th>Carga Horária</th>
-                      <th>Status</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {planos.map(p => (
-                      <tr key={p.id}>
-                        <td>{p.disciplina}</td>
-                        <td>{p.turma}</td>
-                        <td>{p.ano}</td>
-                        <td>{p.cargaHoraria}</td>
-                        <td><span className="status-badge status-presente">{p.status}</span></td>
-                        <td>
-                          <button className="btn btn-sm btn-outline" onClick={() => alert(`Visualizando plano ${p.id}`)}>Ver</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <form onSubmit={(e) => { e.preventDefault(); alert('Plano docente salvo com sucesso!'); setPlanoTab('lista'); }}>
-                  <div className="form-group">
-                    <label>Disciplina</label>
-                    <input type="text" placeholder="Ex: Matemática" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Turma / Ano</label>
-                    <input type="text" placeholder="Ex: 9º Ano A - 2025" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Ementa</label>
-                    <textarea rows="3" placeholder="Ementa do curso..." required />
-                  </div>
-                  <div className="form-group">
-                    <label>Objetivos Gerais e Específicos</label>
-                    <textarea rows="3" placeholder="Objetivos pedagógicos..." required />
-                  </div>
-                  <button type="submit" className="btn btn-primary">Salvar Plano Docente</button>
-                </form>
-              )}
-            </div>
-          )}
-
-          {/* Seção de Material Didático */}
-          {activeSection === 'material-didatico' && (
-            <div className="section-card fadeIn" id="material-didatico-content">
-              <div className="section-header">
-                <h2>Material Didático</h2>
-                <button className="btn btn-primary" onClick={() => setMaterialTab(materialTab === 'lista' ? 'incluir' : 'lista')}>
-                  {materialTab === 'lista' ? '+ Incluir Material' : 'Ver Materiais'}
-                </button>
-              </div>
-
-              {materialTab === 'lista' ? (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Tipo</th>
-                      <th>Disciplina</th>
-                      <th>Série</th>
-                      <th>Status</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {materiais.map(m => (
-                      <tr key={m.id}>
-                        <td>{m.nome}</td>
-                        <td>{m.tipo}</td>
-                        <td>{m.disciplina}</td>
-                        <td>{m.serie}</td>
-                        <td><span className="status-badge status-presente">{m.status}</span></td>
-                        <td>
-                          <button className="btn btn-sm btn-outline" onClick={() => alert(`Baixando ${m.nome}`)}>Download</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <form onSubmit={(e) => { e.preventDefault(); alert('Material cadastrado!'); setMaterialTab('lista'); }}>
-                  <div className="form-group">
-                    <label>Nome do Material</label>
-                    <input type="text" placeholder="Ex: Apostila de Geometria Plana" required />
-                  </div>
-                  <div className="form-group">
-                    <label>Tipo</label>
-                    <select>
-                      <option>PDF</option>
-                      <option>Vídeo</option>
-                      <option>Slides (PPT)</option>
-                      <option>Documento (Word)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Disciplina</label>
-                    <input type="text" placeholder="Ex: Matemática" required />
-                  </div>
-                  <button type="submit" className="btn btn-primary">Cadastrar Material</button>
-                </form>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

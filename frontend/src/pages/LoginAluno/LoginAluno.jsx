@@ -1,264 +1,119 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
-import LoadingOverlay from '../../components/LoadingOverlay';
+import { authApi } from '../../services/api';
 import './LoginAluno.css';
 
 export const LoginAluno = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { isDark, toggleTheme } = useTheme();
 
-  const [isLoginView, setIsLoginView] = useState(true);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [attemptsLeft, setAttemptsLeft] = useState(3);
-  const [loginMessage, setLoginMessage] = useState(
-    searchParams.get('erro') === '1' ? 'Usuário ou senha inválidos.' : ''
-  );
-  const [messageType, setMessageType] = useState(
-    searchParams.get('erro') === '1' ? 'error' : ''
-  );
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  // Signup form states
-  const [signupUser, setSignupUser] = useState('');
-  const [signupEmail, setSignupEmail] = useState('');
-  const [signupPassword, setSignupPassword] = useState('');
-  const [signupSuccess, setSignupSuccess] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (attemptsLeft <= 0) {
-      setLoginMessage('Número de tentativas esgotado. Tente novamente mais tarde.');
-      setMessageType('error');
+    if (!email || !password) {
+      setErrorMessage('Por favor, preencha o e-mail e a senha.');
       return;
     }
 
     setIsLoading(true);
-    setLoginMessage('');
+    setErrorMessage('');
 
     try {
-      // Chamada real para o Backend Spring Boot
-      const res = await fetch('/api/auth/login/aluno', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.autenticado) {
-        localStorage.setItem('studi_user', JSON.stringify(data));
-        navigate(data.redirecionamento || '/dashboard/aluno');
-      } else {
-        const nextAttempts = attemptsLeft - 1;
-        setAttemptsLeft(nextAttempts);
-        setLoginMessage(
-          data.mensagem || (nextAttempts > 0 
-            ? `Usuário ou senha inválidos. Tentativas restantes: ${nextAttempts}` 
-            : 'Conta bloqueada temporariamente. Número de tentativas excedido.')
-        );
-        setMessageType('error');
-      }
-    } catch (err) {
-      // Fallback em caso de backend offline
-      console.warn('Backend indisponível, utilizando autenticação local de demonstração:', err);
-      if (username.trim() && password.trim()) {
-        localStorage.setItem('studi_user', JSON.stringify({ nome: username, perfil: 'ALUNO' }));
+      const data = await authApi.login(email, password);
+      if (data.perfil === 'ROLE_ALUNO') {
         navigate('/dashboard/aluno');
+      } else if (data.perfil === 'ROLE_GESTAO') {
+        navigate('/dashboard/coordenador');
       } else {
-        const nextAttempts = attemptsLeft - 1;
-        setAttemptsLeft(nextAttempts);
-        setLoginMessage(`Usuário ou senha inválidos. Tentativas restantes: ${nextAttempts}`);
-        setMessageType('error');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    if (!signupUser || !signupEmail || !signupPassword) {
-      alert('Por favor, preencha todos os campos.');
-      return;
-    }
-
-    setIsLoading(true);
-    setSignupSuccess('');
-
-    try {
-      // Chamada real para o Backend Spring Boot
-      const res = await fetch('/api/auth/cadastro/aluno', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          usuario: signupUser,
-          email: signupEmail,
-          senha: signupPassword
-        })
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.sucesso) {
-        setSignupSuccess(data.mensagem || 'Cadastro realizado com sucesso! Faça seu login.');
-        setUsername(signupUser);
-        setIsLoginView(true);
-        setSignupUser('');
-        setSignupEmail('');
-        setSignupPassword('');
-      } else {
-        alert(data.mensagem || 'Erro ao realizar cadastro.');
+        navigate('/dashboard/professor');
       }
     } catch (err) {
-      console.warn('Backend offline, simulando cadastro com sucesso:', err);
-      setSignupSuccess('Cadastro realizado com sucesso! Faça seu login.');
-      setUsername(signupUser);
-      setIsLoginView(true);
-      setSignupUser('');
-      setSignupEmail('');
-      setSignupPassword('');
+      setErrorMessage(err.message || 'Credenciais inválidas. Verifique seu e-mail e senha.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogoClick = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/');
-    }, 1000);
+  const autofillDemoAluno = () => {
+    setEmail('joao.silva@sanquim.br');
+    setPassword('aluno123');
+    setErrorMessage('');
   };
 
   return (
-    <div className="page-login-aluno">
-      <header className="navbar">
-        <div className="logo" onClick={handleLogoClick}>
-          <img src="/assets/img/logo.webp" alt="Logo" />
-          <strong>Início</strong>
-        </div>
-        <div className="nav-items">
-          <span 
-            className="theme-toggle" 
-            onClick={toggleTheme} 
-            title="Alternar tema"
-            style={{ cursor: 'pointer' }}
-          >
-            <strong>{isDark ? '☀️' : '🌙'}</strong>
-          </span>
-        </div>
-        <div className="professor">
-          <strong onClick={() => navigate('/login-professor')}>Professor</strong>
-        </div>
-      </header>
-
-      <div className="main">
-        {/* Checkbox controla o slide entre Cadastro e Login pelo CSS */}
-        <input 
-          type="checkbox" 
-          id="chk" 
-          aria-hidden="true" 
-          checked={isLoginView} 
-          onChange={(e) => setIsLoginView(e.target.checked)} 
-        />
-
-        <div className="signup">
-          <form onSubmit={handleSignup}>
-            <label 
-              htmlFor="chk" 
-              aria-hidden="true" 
-              onClick={() => setIsLoginView(false)}
-            >
-              Cadastro
-            </label>
-            <input 
-              type="text" 
-              placeholder="Digite seu nome de usuário" 
-              value={signupUser}
-              onChange={(e) => setSignupUser(e.target.value)}
-              required 
-            />
-            <input 
-              type="email" 
-              placeholder="Digite seu email" 
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
-              required 
-            />
-            <input 
-              type="password" 
-              placeholder="Digite sua senha" 
-              value={signupPassword}
-              onChange={(e) => setSignupPassword(e.target.value)}
-              required 
-            />
-            <button type="submit">Cadastrar-se</button>
-          </form>
+    <div className="login-aluno-container">
+      <div className="login-aluno-card">
+        <div className="login-aluno-header">
+          <div className="logo-box" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <span className="logo-text">Studi<i>+</i></span>
+          </div>
+          <h2>Portal do Aluno</h2>
+          <p>Consulte seu boletim escolar, frequência e conteúdos das aulas</p>
         </div>
 
-        <div className="login">
-          <form onSubmit={handleLogin}>
-            <label 
-              htmlFor="chk" 
-              aria-hidden="true" 
-              onClick={() => setIsLoginView(true)}
-            >
-              Login
-            </label>
+        {errorMessage && (
+          <div className="error-alert">
+            <i className="fas fa-exclamation-circle"></i> {errorMessage}
+          </div>
+        )}
 
-            {signupSuccess && (
-              <div className="login-message" style={{ display: 'block', color: '#2e7d32', backgroundColor: '#e8f5e9' }}>
-                {signupSuccess}
-              </div>
-            )}
+        <div className="demo-fill-box">
+          <span>Teste Rápido:</span>
+          <button type="button" onClick={autofillDemoAluno} className="btn-demo-autofill">
+            <i className="fas fa-magic"></i> Preencher Aluno de Teste (João Silva)
+          </button>
+        </div>
 
-            <input 
-              type="text" 
-              id="username" 
-              name="username" 
-              placeholder="Digite seu usuario ou e-mail" 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required 
-            />
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              placeholder="Digite sua senha" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-            
-            {loginMessage && (
-              <div 
-                id="login-message" 
-                className={`login-message ${messageType}`} 
-                style={{ display: 'block' }}
-              >
-                {loginMessage}
-              </div>
-            )}
-
-            <div className="login-attempts">
-              Tentativas: <span id="attempts-left">{attemptsLeft}</span>
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">E-mail ou Usuário</label>
+            <div className="input-with-icon">
+              <i className="fas fa-envelope"></i>
+              <input
+                id="email"
+                type="text"
+                placeholder="exemplo@sanquim.br"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
+          </div>
 
-            <button type="submit">Login</button>
-            <div className="forgot-password">
-              <Link to="/esqueci-senha">Esqueci minha senha</Link>
+          <div className="form-group">
+            <label htmlFor="password">Senha de Acesso</label>
+            <div className="input-with-icon">
+              <i className="fas fa-lock"></i>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-          </form>
+          </div>
+
+          <div className="form-actions">
+            <Link to="/esqueci-senha" className="link-forgot">Esqueceu a senha?</Link>
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={isLoading}>
+            {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Autenticando...</> : <><i className="fas fa-sign-in-alt"></i> Entrar na Plataforma</>}
+          </button>
+        </form>
+
+        <div className="login-aluno-footer">
+          <p>É professor ou coordenador? <Link to="/login-professor">Acesse a Área Docente</Link></p>
+          <p><Link to="/"><i className="fas fa-arrow-left"></i> Voltar à Página Inicial</Link></p>
         </div>
       </div>
-
-      <LoadingOverlay active={isLoading} />
     </div>
   );
 };

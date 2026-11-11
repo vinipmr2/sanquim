@@ -15,4 +15,12 @@ public interface MatriculaRepository extends JpaRepository<Matricula, Long> {
     List<Matricula> findByStatus(String status);
 
     List<Matricula> findByAlunoNomeContainingIgnoreCase(String nome);
+
+    List<Matricula> findByTurmaId(Long turmaId);
+
+    List<Matricula> findByUsuarioId(Long usuarioId);
+
+    Optional<Matricula> findByUsuarioIdAndTurmaId(Long usuarioId, Long turmaId);
+
+    long countByTurmaId(Long turmaId);
 }

@@ -1,671 +1,496 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { alunoApi, authStorage } from '../../services/api';
 import './DashboardAluno.css';
 
 export const DashboardAluno = () => {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('atividades'); // 'atividades', 'materiais', 'duvidas', 'desempenho', 'calendario'
-  const [materiaTab, setMateriaTab] = useState('recentes'); // 'recentes', 'disciplina', 'favoritos'
-  const [duvidaTab, setDuvidaTab] = useState('minhas'); // 'minhas', 'horarios'
-  const [searchQuery, setSearchQuery] = useState('');
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('boletim'); // 'boletim', 'frequencia', 'timeline', 'materiais'
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [searchFilter, setSearchFilter] = useState('');
+
+  // Dados da API
+  const [boletim, setBoletim] = useState(null);
+  const [frequencia, setFrequencia] = useState(null);
+  const [aulas, setAulas] = useState([]);
+
+  useEffect(() => {
+    const currentUser = authStorage.getUser();
+    if (!currentUser) {
+      navigate('/login-aluno');
+      return;
+    }
+    setUser(currentUser);
+    carregarDadosAluno();
+  }, [navigate]);
+
+  const carregarDadosAluno = async () => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const [boletimData, freqData, aulasData] = await Promise.all([
+        alunoApi.getBoletim().catch(err => {
+          console.warn('Erro ao obter boletim:', err);
+          return null;
+        }),
+        alunoApi.getFrequencia().catch(err => {
+          console.warn('Erro ao obter frequencia:', err);
+          return null;
+        }),
+        alunoApi.getAulas().catch(err => {
+          console.warn('Erro ao obter aulas:', err);
+          return [];
+        })
+      ]);
+
+      setBoletim(boletimData);
+      setFrequencia(freqData);
+      setAulas(aulasData || []);
+    } catch (err) {
+      console.error('Falha geral no carregamento do portal do aluno:', err);
+      setErrorMsg('Não foi possível carregar os dados acadêmicos do servidor.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    authStorage.clear();
+    navigate('/');
+  };
+
+  // Filtragem de disciplinas do boletim
+  const disciplinasFiltradas = (boletim?.disciplinas || []).filter(d => 
+    d.disciplinaNome.toLowerCase().includes(searchFilter.toLowerCase()) ||
+    (d.professorNome && d.professorNome.toLowerCase().includes(searchFilter.toLowerCase()))
+  );
+
+  // Filtragem de aulas da timeline
+  const aulasFiltradas = (aulas || []).filter(a =>
+    a.titulo.toLowerCase().includes(searchFilter.toLowerCase()) ||
+    a.disciplinaNome.toLowerCase().includes(searchFilter.toLowerCase()) ||
+    (a.topicos && a.topicos.toLowerCase().includes(searchFilter.toLowerCase()))
+  );
 
   return (
     <div className="page-dashboard-aluno">
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-          <img src="/assets/img/logo.webp" alt="Logo da Escola" onError={(e) => { e.target.style.display = 'none'; }} />
-          <h2>Portal do Aluno</h2>
+          <h2>Studi<i>+</i> Discente</h2>
+          <span className="role-chip aluno">ROLE_ALUNO</span>
         </div>
 
         <ul className="sidebar-menu">
           <li>
             <a 
-              href="#dashboard" 
-              className={activeSection === 'dashboard' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('dashboard'); }}
+              href="#boletim" 
+              className={activeTab === 'boletim' ? 'active' : ''} 
+              onClick={(e) => { e.preventDefault(); setActiveTab('boletim'); }}
             >
-              <i className="fas fa-home"></i>
-              <span>Dashboard</span>
+              <i className="fas fa-file-invoice"></i>
+              <span>Boletim & Notas</span>
             </a>
           </li>
           <li>
             <a 
-              href="#atividades" 
-              className={activeSection === 'atividades' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('atividades'); }}
+              href="#frequencia" 
+              className={activeTab === 'frequencia' ? 'active' : ''} 
+              onClick={(e) => { e.preventDefault(); setActiveTab('frequencia'); }}
             >
-              <i className="fas fa-tasks"></i>
-              <span>Atividades</span>
+              <i className="fas fa-user-check"></i>
+              <span>Frequência & Presenças</span>
+            </a>
+          </li>
+          <li>
+            <a 
+              href="#timeline" 
+              className={activeTab === 'timeline' ? 'active' : ''} 
+              onClick={(e) => { e.preventDefault(); setActiveTab('timeline'); }}
+            >
+              <i className="fas fa-stream"></i>
+              <span>Linha do Tempo de Aulas</span>
             </a>
           </li>
           <li>
             <a 
               href="#materiais" 
-              className={activeSection === 'materiais' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('materiais'); }}
+              className={activeTab === 'materiais' ? 'active' : ''} 
+              onClick={(e) => { e.preventDefault(); setActiveTab('materiais'); }}
             >
-              <i className="fas fa-book"></i>
-              <span>Materiais</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#duvidas" 
-              className={activeSection === 'duvidas' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('duvidas'); }}
-            >
-              <i className="fas fa-question-circle"></i>
-              <span>Dúvidas</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#desempenho" 
-              className={activeSection === 'desempenho' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('desempenho'); }}
-            >
-              <i className="fas fa-chart-line"></i>
-              <span>Desempenho</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#calendario" 
-              className={activeSection === 'calendario' ? 'active' : ''}
-              onClick={(e) => { e.preventDefault(); setActiveSection('calendario'); }}
-            >
-              <i className="fas fa-calendar-alt"></i>
-              <span>Calendário</span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#sair" 
-              onClick={(e) => { e.preventDefault(); navigate('/'); }}
-            >
-              <i className="fas fa-sign-out-alt"></i>
-              <span>Sair / Início</span>
+              <i className="fas fa-book-reader"></i>
+              <span>Materiais & Ementas</span>
             </a>
           </li>
         </ul>
 
         <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-avatar">A</div>
-            <div className="user-name">Aluno Santos</div>
-          </div>
+          <a href="/swagger-ui.html" target="_blank" rel="noreferrer" className="btn-swagger-sidebar">
+            <i className="fas fa-code"></i> Swagger OpenAPI
+          </a>
+          <button className="btn-logout" onClick={handleLogout}>
+            <i className="fas fa-sign-out-alt"></i> Sair do Portal
+          </button>
         </div>
       </aside>
 
-      {/* Conteúdo Principal */}
+      {/* Main Content */}
       <main className="main-content">
-        <header className="header">
-          <div className="page-title">
-            <h1>Dashboard</h1>
-            <p>Bem-vindo(a) ao Portal do Aluno</p>
+        <header className="content-header">
+          <div className="header-title">
+            <h1>Portal Acadêmico do Estudante</h1>
+            <p>Colégio Sanquim — Acompanhamento em tempo real de notas, assiduidade e aulas</p>
           </div>
-
-          <div className="search-bar">
-            <input 
-              type="text" 
-              placeholder="Pesquisar..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button><i className="fas fa-search"></i></button>
+          <div className="header-user">
+            <div className="user-avatar aluno"><i className="fas fa-user-graduate"></i></div>
+            <div className="user-details">
+              <strong>{user?.nome || boletim?.alunoNome || 'João Silva'}</strong>
+              <small>{user?.email || 'aluno@sanquim.br'}</small>
+            </div>
           </div>
         </header>
 
-        {/* Cards de Atalho */}
-        <div className="dashboard">
-          <div 
-            className={`dashboard-card ${activeSection === 'atividades' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('atividades')}
-          >
-            <i className="fas fa-tasks"></i>
-            <h3>Atividades</h3>
-            <p>Visualize suas atividades pendentes</p>
-          </div>
-
-          <div 
-            className={`dashboard-card ${activeSection === 'materiais' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('materiais')}
-          >
-            <i className="fas fa-book"></i>
-            <h3>Materiais de Estudo</h3>
-            <p>Acesse os materiais compartilhados</p>
-          </div>
-
-          <div 
-            className={`dashboard-card ${activeSection === 'duvidas' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('duvidas')}
-          >
-            <i className="fas fa-question-circle"></i>
-            <h3>Plantão de Dúvidas</h3>
-            <p>Tire suas dúvidas com os professores</p>
-          </div>
-
-          <div 
-            className={`dashboard-card ${activeSection === 'desempenho' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('desempenho')}
-          >
-            <i className="fas fa-chart-line"></i>
-            <h3>Desempenho</h3>
-            <p>Acompanhe suas notas e progresso</p>
-          </div>
-
-          <div 
-            className={`dashboard-card ${activeSection === 'calendario' ? 'card-active' : ''}`}
-            onClick={() => setActiveSection('calendario')}
-          >
-            <i className="fas fa-calendar-alt"></i>
-            <h3>Calendário</h3>
-            <p>Visualize seu horário e eventos</p>
-          </div>
-        </div>
-
-        <div className="main-sections">
-          {/* Seção de Atividades */}
-          {(activeSection === 'atividades' || activeSection === 'dashboard') && (
-            <div className="section-card fadeIn" id="atividades-content">
-              <div className="section-header">
-                <h2>Atividades Pendentes</h2>
-                <button className="btn btn-primary" onClick={() => alert('Visualizando histórico completo de atividades.')}>
-                  Ver Todas
-                </button>
-              </div>
-
-              <div className="search-select">
-                <select>
-                  <option>Todas as Disciplinas</option>
-                  <option>Matemática</option>
-                  <option>Português</option>
-                  <option>Ciências</option>
-                  <option>História</option>
-                  <option>Geografia</option>
-                </select>
-                <select>
-                  <option>Todos os Status</option>
-                  <option>Pendentes</option>
-                  <option>Concluídas</option>
-                  <option>Atrasadas</option>
-                </select>
-                <button><i className="fas fa-search"></i> Filtrar</button>
-              </div>
-
-              <table>
-                <thead>
-                  <tr>
-                    <th>Atividade</th>
-                    <th>Disciplina</th>
-                    <th>Data de Entrega</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Lista de Exercícios - Equações</td>
-                    <td>Matemática</td>
-                    <td>25/05/2025</td>
-                    <td><span className="status-badge status-pendente">Pendente</span></td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn btn-sm btn-primary" onClick={() => alert('Abrindo lista de exercícios...')}>
-                          Fazer
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Redação - Sustentabilidade</td>
-                    <td>Português</td>
-                    <td>22/05/2025</td>
-                    <td><span className="status-badge status-entregue">Entregue</span></td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn btn-sm btn-outline" onClick={() => alert('Visualizando envio da redação...')}>
-                          Ver
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Trabalho - Biomas Brasileiros</td>
-                    <td>Ciências</td>
-                    <td>30/05/2025</td>
-                    <td><span className="status-badge status-pendente">Pendente</span></td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn btn-sm btn-primary" onClick={() => alert('Abrindo trabalho de biomas...')}>
-                          Fazer
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Questionário - Revolução Francesa</td>
-                    <td>História</td>
-                    <td>28/05/2025</td>
-                    <td><span className="status-badge status-pendente">Pendente</span></td>
-                    <td>
-                      <div className="action-buttons">
-                        <button className="btn btn-sm btn-primary" onClick={() => alert('Iniciando questionário...')}>
-                          Fazer
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+        {/* Banner de Identificação do Aluno */}
+        <section className="student-badge-banner">
+          <div className="student-badge-info">
+            <div className="info-item">
+              <span className="info-label">Matrícula:</span>
+              <strong className="info-val">{boletim?.matriculaCodigo || frequencia?.matriculaCodigo || '2026001'}</strong>
             </div>
-          )}
-
-          {/* Seção de Materiais de Estudo */}
-          {activeSection === 'materiais' && (
-            <div className="section-card fadeIn" id="materiais-content">
-              <div className="section-header">
-                <h2>Materiais de Estudo</h2>
-                <div className="search-bar" style={{ width: '300px' }}>
-                  <input type="text" placeholder="Buscar materiais..." />
-                  <button><i className="fas fa-search"></i></button>
-                </div>
-              </div>
-
-              <div className="tab-nav">
-                <button 
-                  className={`tab-button ${materiaTab === 'recentes' ? 'active' : ''}`}
-                  onClick={() => setMateriaTab('recentes')}
-                >
-                  Recentes
-                </button>
-                <button 
-                  className={`tab-button ${materiaTab === 'disciplina' ? 'active' : ''}`}
-                  onClick={() => setMateriaTab('disciplina')}
-                >
-                  Por Disciplina
-                </button>
-                <button 
-                  className={`tab-button ${materiaTab === 'favoritos' ? 'active' : ''}`}
-                  onClick={() => setMateriaTab('favoritos')}
-                >
-                  Favoritos
-                </button>
-              </div>
-
-              <div className="material-grid">
-                <div className="material-card">
-                  <div className="material-thumbnail">
-                    <i className="fas fa-file-pdf"></i>
-                  </div>
-                  <div className="material-info">
-                    <h3>Resumo - Geometria Espacial</h3>
-                    <p>Matemática • PDF • 3MB</p>
-                    <div className="material-actions">
-                      <button className="btn btn-sm btn-outline" onClick={() => alert('Baixando material...')}><i className="fas fa-download"></i></button>
-                      <button className="btn btn-sm btn-outline"><i className="fas fa-star"></i></button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="material-card">
-                  <div className="material-thumbnail">
-                    <i className="fas fa-file-powerpoint"></i>
-                  </div>
-                  <div className="material-info">
-                    <h3>Slides - Revolução Francesa</h3>
-                    <p>História • PPT • 5MB</p>
-                    <div className="material-actions">
-                      <button className="btn btn-sm btn-outline" onClick={() => alert('Baixando slides...')}><i className="fas fa-download"></i></button>
-                      <button className="btn btn-sm btn-outline"><i className="fas fa-star"></i></button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="material-card">
-                  <div className="material-thumbnail">
-                    <i className="fas fa-file-word"></i>
-                  </div>
-                  <div className="material-info">
-                    <h3>Guia de Redação Nota 1000</h3>
-                    <p>Português • DOCX • 1.5MB</p>
-                    <div className="material-actions">
-                      <button className="btn btn-sm btn-outline" onClick={() => alert('Baixando guia...')}><i className="fas fa-download"></i></button>
-                      <button className="btn btn-sm btn-outline"><i className="fas fa-star"></i></button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="material-card">
-                  <div className="material-thumbnail">
-                    <i className="fas fa-file-video"></i>
-                  </div>
-                  <div className="material-info">
-                    <h3>Vídeo-aula - Funções Quadráticas</h3>
-                    <p>Matemática • MP4 • 50MB</p>
-                    <div className="material-actions">
-                      <button className="btn btn-sm btn-outline" onClick={() => alert('Assistindo vídeo-aula...')}><i className="fas fa-play"></i></button>
-                      <button className="btn btn-sm btn-outline"><i className="fas fa-star"></i></button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="material-card">
-                  <div className="material-thumbnail">
-                    <i className="fas fa-file-excel"></i>
-                  </div>
-                  <div className="material-info">
-                    <h3>Tabela Periódica Interativa</h3>
-                    <p>Química • XLSX • 2MB</p>
-                    <div className="material-actions">
-                      <button className="btn btn-sm btn-outline" onClick={() => alert('Baixando dados...')}><i className="fas fa-download"></i></button>
-                      <button className="btn btn-sm btn-outline"><i className="fas fa-star"></i></button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="material-card">
-                  <div className="material-thumbnail">
-                    <i className="fas fa-file-alt"></i>
-                  </div>
-                  <div className="material-info">
-                    <h3>Revisão Geral - Mecânica e Óptica</h3>
-                    <p>Física • PDF • 4MB</p>
-                    <div className="material-actions">
-                      <button className="btn btn-sm btn-outline" onClick={() => alert('Baixando revisão...')}><i className="fas fa-download"></i></button>
-                      <button className="btn btn-sm btn-outline"><i className="fas fa-star"></i></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="info-item">
+              <span className="info-label">Turma Vigente:</span>
+              <strong className="info-val">{boletim?.turmaNome || frequencia?.turmaNome || 'Turma Regular'}</strong>
             </div>
-          )}
+            <div className="info-item">
+              <span className="info-label">Período Letivo:</span>
+              <strong className="info-val">2026.1</strong>
+            </div>
+            <div className="info-item">
+              <span className="info-label">Situação Cadastral:</span>
+              <span className="badge-active">Regular / Ativo</span>
+            </div>
+          </div>
 
-          {/* Seção de Plantão de Dúvidas */}
-          {activeSection === 'duvidas' && (
-            <div className="section-card fadeIn" id="duvidas-content">
-              <div className="section-header">
-                <h2>Plantão de Dúvidas</h2>
-                <button className="btn btn-primary" onClick={() => alert('Formulário de nova dúvida aberto.')}>
-                  Nova Dúvida
-                </button>
+          <div className="search-filter-box">
+            <i className="fas fa-search"></i>
+            <input 
+              type="text" 
+              placeholder="Filtrar matérias, tópicos ou professores..." 
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+            />
+          </div>
+        </section>
+
+        {/* Métricas Principais (KPI Cards) */}
+        <section className="kpi-grid">
+          <div className="kpi-card">
+            <div className="kpi-icon media">
+              <i className="fas fa-star"></i>
+            </div>
+            <div className="kpi-info">
+              <span className="kpi-label">Média Geral Ponderada</span>
+              <h3 className="kpi-value">{boletim?.mediaGeral ? Number(boletim.mediaGeral).toFixed(1) : '9.2'}</h3>
+              <small className="kpi-sub positive"><i className="fas fa-arrow-up"></i> Acima da média mínima (6.0)</small>
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-icon presenca">
+              <i className="fas fa-calendar-check"></i>
+            </div>
+            <div className="kpi-info">
+              <span className="kpi-label">Assiduidade Geral</span>
+              <h3 className="kpi-value">{frequencia?.percentualGeral ? `${Math.round(frequencia.percentualGeral)}%` : '96%'}</h3>
+              <small className="kpi-sub positive"><i className="fas fa-shield-alt"></i> Situação regular (Mínimo: 75%)</small>
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-icon aulas">
+              <i className="fas fa-chalkboard"></i>
+            </div>
+            <div className="kpi-info">
+              <span className="kpi-label">Aulas Concluídas</span>
+              <h3 className="kpi-value">{frequencia?.totalAulas || aulas.length || 1}</h3>
+              <small className="kpi-sub neutral">{frequencia?.totalPresencas || 1} presenças confirmadas</small>
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-icon disciplinas">
+              <i className="fas fa-book"></i>
+            </div>
+            <div className="kpi-info">
+              <span className="kpi-label">Disciplinas Matriculadas</span>
+              <h3 className="kpi-value">{boletim?.disciplinas?.length || 3}</h3>
+              <small className="kpi-sub neutral">Grade regular do semestre</small>
+            </div>
+          </div>
+        </section>
+
+        {loading ? (
+          <div className="loading-state">
+            <i className="fas fa-spinner fa-spin"></i> Carregando informações acadêmicas do discente...
+          </div>
+        ) : errorMsg ? (
+          <div className="error-state-card">
+            <i className="fas fa-exclamation-triangle"></i>
+            <h3>Atenção</h3>
+            <p>{errorMsg}</p>
+            <button className="btn-retry" onClick={carregarDadosAluno}>
+              <i className="fas fa-sync"></i> Tentar Novamente
+            </button>
+          </div>
+        ) : (
+          <div className="dashboard-body">
+            {/* 1. ABA BOLETIM ESCOLAR */}
+            {activeTab === 'boletim' && (
+              <div className="tab-pane">
+                <div className="card-box">
+                  <div className="box-header">
+                    <h2><i className="fas fa-file-invoice text-primary"></i> Boletim Escolar Consolidado</h2>
+                    <span className="badge-info">{disciplinasFiltradas.length} disciplinas</span>
+                  </div>
+
+                  {disciplinasFiltradas.length === 0 ? (
+                    <div className="empty-state">
+                      <i className="fas fa-folder-open"></i>
+                      <p>Nenhuma disciplina encontrada com o termo "{searchFilter}".</p>
+                    </div>
+                  ) : (
+                    <div className="disciplinas-boletim-list">
+                      {disciplinasFiltradas.map((disc, idx) => {
+                        const media = disc.mediaFinal != null ? Number(disc.mediaFinal).toFixed(1) : '-';
+                        const isAprovado = disc.mediaFinal >= 6.0;
+
+                        return (
+                          <div key={idx} className="disciplina-card">
+                            <div className="disciplina-header">
+                              <div className="disc-title-group">
+                                <h3>{disc.disciplinaNome}</h3>
+                                <span className="docente-tag"><i className="fas fa-chalkboard-teacher"></i> {disc.professorNome || 'Docente Responsável'}</span>
+                              </div>
+                              <div className="disc-media-box">
+                                <span className="media-label">Média Final:</span>
+                                <span className={`media-badge ${isAprovado ? 'aprovado' : 'atencao'}`}>{media}</span>
+                                <span className={`status-pill ${isAprovado ? 'status-ok' : 'status-warn'}`}>
+                                  {disc.status || (isAprovado ? 'APROVADO' : 'EM CURSO')}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Detalhamento das Avaliações da Disciplina */}
+                            <div className="avaliacoes-detalhe">
+                              <h4><i className="fas fa-tasks"></i> Avaliações e Provas ({disc.avaliacoes?.length || 0})</h4>
+                              {(!disc.avaliacoes || disc.avaliacoes.length === 0) ? (
+                                <p className="sem-avaliacoes">Nenhuma avaliação cadastrada ou nota lançada ainda para esta disciplina.</p>
+                              ) : (
+                                <div className="table-responsive">
+                                  <table className="custom-table avaliacoes-table">
+                                    <thead>
+                                      <tr>
+                                        <th>Avaliação</th>
+                                        <th>Tipo</th>
+                                        <th>Peso</th>
+                                        <th>Data Entrega</th>
+                                        <th>Nota Obtida</th>
+                                        <th>Feedback do Professor</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {disc.avaliacoes.map((av, avIdx) => (
+                                        <tr key={avIdx}>
+                                          <td><strong>{av.titulo}</strong></td>
+                                          <td><span className="type-badge">{av.tipo}</span></td>
+                                          <td>{av.peso}</td>
+                                          <td>{av.dataEntrega || '—'}</td>
+                                          <td>
+                                            <strong className={av.nota >= 6.0 ? 'text-success' : 'text-danger'}>
+                                              {av.nota != null ? `${Number(av.nota).toFixed(1)} / ${av.notaMaxima || 10}` : 'Pendente'}
+                                            </strong>
+                                          </td>
+                                          <td><span className="feedback-text">{av.observacao || '—'}</span></td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
+            )}
 
-              <div className="tab-nav">
-                <button 
-                  className={`tab-button ${duvidaTab === 'minhas' ? 'active' : ''}`}
-                  onClick={() => setDuvidaTab('minhas')}
-                >
-                  Minhas Dúvidas
-                </button>
-                <button 
-                  className={`tab-button ${duvidaTab === 'horarios' ? 'active' : ''}`}
-                  onClick={() => setDuvidaTab('horarios')}
-                >
-                  Horários Disponíveis
-                </button>
+            {/* 2. ABA FREQUÊNCIA & PRESENÇAS */}
+            {activeTab === 'frequencia' && (
+              <div className="tab-pane">
+                <div className="card-box">
+                  <div className="box-header">
+                    <h2><i className="fas fa-user-check text-primary"></i> Relatório de Frequência & Presença</h2>
+                    <span className="badge-info">Exigência LDB: mínimo de 75%</span>
+                  </div>
+
+                  <div className="freq-summary-banner">
+                    <div className="freq-summary-col">
+                      <span>Total de Aulas Registradas</span>
+                      <strong>{frequencia?.totalAulas || 1}</strong>
+                    </div>
+                    <div className="freq-summary-col">
+                      <span>Presenças Confirmadas</span>
+                      <strong className="text-success">{frequencia?.totalPresencas || 1}</strong>
+                    </div>
+                    <div className="freq-summary-col">
+                      <span>Faltas Computadas</span>
+                      <strong className="text-danger">{frequencia?.totalFaltas || 0}</strong>
+                    </div>
+                    <div className="freq-summary-col">
+                      <span>Assiduidade Geral</span>
+                      <strong className="text-primary">{frequencia?.percentualGeral ? `${Math.round(frequencia.percentualGeral)}%` : '100%'}</strong>
+                    </div>
+                  </div>
+
+                  <div className="table-responsive mt-4">
+                    <table className="custom-table">
+                      <thead>
+                        <tr>
+                          <th>Disciplina</th>
+                          <th>Aulas Previstas</th>
+                          <th>Presenças</th>
+                          <th>Faltas</th>
+                          <th>% Assiduidade</th>
+                          <th>Situação</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(frequencia?.disciplinas || []).map((fd, idx) => {
+                          const pct = fd.percentual != null ? Math.round(fd.percentual) : 100;
+                          const regular = pct >= 75;
+
+                          return (
+                            <tr key={idx}>
+                              <td><strong>{fd.disciplinaNome}</strong></td>
+                              <td>{fd.totalAulas}</td>
+                              <td><span className="badge-active">{fd.presencas}</span></td>
+                              <td><span className="badge-danger">{fd.faltas}</span></td>
+                              <td>
+                                <strong>{pct}%</strong>
+                                <div className="mini-progress">
+                                  <div style={{ width: `${pct}%`, background: regular ? '#10b981' : '#ef4444' }}></div>
+                                </div>
+                              </td>
+                              <td>
+                                <span className={`status-pill ${regular ? 'status-ok' : 'status-danger'}`}>
+                                  {fd.situacao || (regular ? 'REGULAR' : 'RISCO DE REPROVAÇÃO')}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
+            )}
 
-              {duvidaTab === 'minhas' ? (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Título</th>
-                      <th>Disciplina</th>
-                      <th>Professor</th>
-                      <th>Data</th>
-                      <th>Status</th>
-                      <th>Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Dúvida sobre Teorema de Pitágoras</td>
-                      <td>Matemática</td>
-                      <td>Prof. Silva</td>
-                      <td>18/05/2025</td>
-                      <td><span className="status-badge status-presente">Respondido</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn btn-sm btn-outline" onClick={() => alert('Exibindo resposta do professor...')}>Ver</button>
+            {/* 3. ABA LINHA DO TEMPO DE AULAS */}
+            {activeTab === 'timeline' && (
+              <div className="tab-pane">
+                <div className="card-box">
+                  <div className="box-header">
+                    <h2><i className="fas fa-stream text-primary"></i> Linha do Tempo de Conteúdo Ministrado</h2>
+                    <span className="badge-info">{aulasFiltradas.length} aulas cadastradas</span>
+                  </div>
+
+                  {aulasFiltradas.length === 0 ? (
+                    <div className="empty-state">
+                      <i className="fas fa-calendar-times"></i>
+                      <p>Nenhuma aula encontrada no diário eletrônico.</p>
+                    </div>
+                  ) : (
+                    <div className="student-timeline-list">
+                      {aulasFiltradas.map((aula) => (
+                        <div key={aula.id} className="student-timeline-card">
+                          <div className="timeline-badge-student">
+                            <i className="fas fa-chalkboard"></i>
+                          </div>
+                          <div className="timeline-card-content">
+                            <div className="timeline-card-top">
+                              <span className="timeline-tag-disciplina">{aula.disciplinaNome}</span>
+                              <span className="timeline-tag-data"><i className="far fa-calendar-alt"></i> {aula.dataAula}</span>
+                              {aula.presente !== undefined && (
+                                <span className={`presence-tag ${aula.presente ? 'tag-presente' : 'tag-ausente'}`}>
+                                  {aula.presente ? 'Presente' : 'Ausente'}
+                                </span>
+                              )}
+                            </div>
+                            <h3>{aula.titulo}</h3>
+                            <p className="timeline-topicos"><strong>Tópicos:</strong> {aula.topicos}</p>
+                            {aula.objetivos && <p className="timeline-objetivos"><strong>Objetivos:</strong> {aula.objetivos}</p>}
+                            {aula.materiaisApoio && (
+                              <div className="timeline-materiais-box">
+                                <i className="fas fa-paperclip"></i>
+                                <span>Materiais de Apoio: {aula.materiaisApoio}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Exercício 5 da página 45 - Termodinâmica</td>
-                      <td>Física</td>
-                      <td>Prof. Santos</td>
-                      <td>20/05/2025</td>
-                      <td><span className="status-badge status-ausente">Pendente</span></td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn btn-sm btn-outline" onClick={() => alert('Dúvida ainda em análise pelo professor.')}>Ver</button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              ) : (
-                <div style={{ marginTop: '10px' }}>
-                  <h3>Próximos Plantões</h3>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Disciplina</th>
-                        <th>Professor</th>
-                        <th>Data</th>
-                        <th>Horário</th>
-                        <th>Sala</th>
-                        <th>Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Matemática</td>
-                        <td>Prof. Silva</td>
-                        <td>25/05/2025</td>
-                        <td>14:00 - 15:30</td>
-                        <td>Sala 103</td>
-                        <td>
-                          <button className="btn btn-sm btn-primary" onClick={() => alert('Agendamento confirmado!')}>Agendar</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Física</td>
-                        <td>Prof. Santos</td>
-                        <td>26/05/2025</td>
-                        <td>15:30 - 17:00</td>
-                        <td>Lab. Física</td>
-                        <td>
-                          <button className="btn btn-sm btn-primary" onClick={() => alert('Agendamento confirmado!')}>Agendar</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>Química</td>
-                        <td>Profa. Oliveira</td>
-                        <td>27/05/2025</td>
-                        <td>13:00 - 14:30</td>
-                        <td>Lab. Química</td>
-                        <td>
-                          <button className="btn btn-sm btn-primary" onClick={() => alert('Agendamento confirmado!')}>Agendar</button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Seção de Desempenho e Calendário */}
-          {(activeSection === 'desempenho' || activeSection === 'calendario') && (
-            <div className="section-card fadeIn" id="desempenho-content">
-              <div className="section-header">
-                <h2>{activeSection === 'desempenho' ? 'Desempenho Acadêmico' : 'Grade de Horários & Calendário'}</h2>
-                <div>
-                  <select style={{ width: '200px', marginRight: '10px' }}>
-                    <option>1º Bimestre</option>
-                    <option>2º Bimestre</option>
-                    <option>3º Bimestre</option>
-                    <option>4º Bimestre</option>
-                    <option>Anual</option>
-                  </select>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
+            )}
 
-              {activeSection === 'desempenho' && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Disciplina</th>
-                      <th>Professor</th>
-                      <th>Média</th>
-                      <th>Frequência</th>
-                      <th>Situação</th>
-                      <th>Detalhes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Matemática</td>
-                      <td>Prof. Silva</td>
-                      <td>8.5</td>
-                      <td>95%</td>
-                      <td><span className="status-badge status-presente">Aprovado</span></td>
-                      <td>
-                        <button className="btn btn-sm btn-outline" onClick={() => alert('Notas: P1=8.0, P2=9.0')}>Ver Notas</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Português</td>
-                      <td>Profa. Costa</td>
-                      <td>7.8</td>
-                      <td>90%</td>
-                      <td><span className="status-badge status-presente">Aprovado</span></td>
-                      <td>
-                        <button className="btn btn-sm btn-outline" onClick={() => alert('Notas: P1=7.5, Redação=8.0')}>Ver Notas</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Física</td>
-                      <td>Prof. Santos</td>
-                      <td>6.5</td>
-                      <td>85%</td>
-                      <td><span className="status-badge status-justificado">Atenção</span></td>
-                      <td>
-                        <button className="btn btn-sm btn-outline" onClick={() => alert('Notas: P1=6.0, P2=7.0')}>Ver Notas</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Química</td>
-                      <td>Profa. Oliveira</td>
-                      <td>7.0</td>
-                      <td>88%</td>
-                      <td><span className="status-badge status-presente">Aprovado</span></td>
-                      <td>
-                        <button className="btn btn-sm btn-outline" onClick={() => alert('Notas: P1=7.0, P2=7.0')}>Ver Notas</button>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>História</td>
-                      <td>Prof. Lima</td>
-                      <td>9.0</td>
-                      <td>98%</td>
-                      <td><span className="status-badge status-presente">Aprovado</span></td>
-                      <td>
-                        <button className="btn btn-sm btn-outline" onClick={() => alert('Notas: P1=9.0, Seminário=9.0')}>Ver Notas</button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              )}
+            {/* 4. ABA MATERIAIS & EMENTAS */}
+            {activeTab === 'materiais' && (
+              <div className="tab-pane">
+                <div className="card-box">
+                  <div className="box-header">
+                    <h2><i className="fas fa-book-reader text-primary"></i> Ementas e Materiais Didáticos</h2>
+                  </div>
 
-              <div style={{ marginTop: '30px' }}>
-                <h3>Grade de Horários Semanal</h3>
-                <div className="grade-horarios">
-                  <div className="dias-semana">
-                    <div className="dia">Hora</div>
-                    <div className="dia">Segunda</div>
-                    <div className="dia">Terça</div>
-                    <div className="dia">Quarta</div>
-                    <div className="dia">Quinta</div>
-                    <div className="dia">Sexta</div>
-                  </div>
-                  <div className="horarios">
-                    <div className="horario">07:30 - 08:20</div>
-                    <div className="aula matematica">
-                      <div className="disciplina">Matemática</div>
-                      <div className="professor">Prof. Silva</div>
+                  <div className="materiais-grid">
+                    <div className="material-card-item">
+                      <div className="material-icon math"><i className="fas fa-square-root-alt"></i></div>
+                      <div className="material-info">
+                        <h3>Matemática Geral e Aplicada (MAT001)</h3>
+                        <p>Cálculo diferencial, trigonometria, polinômios e geometria plana/espacial.</p>
+                        <span className="docente-info">Prof. Carlos Santos • 80h</span>
+                      </div>
                     </div>
-                    <div className="aula portugues">
-                      <div className="disciplina">Português</div>
-                      <div className="professor">Profa. Costa</div>
+
+                    <div className="material-card-item">
+                      <div className="material-icon fis"><i className="fas fa-atom"></i></div>
+                      <div className="material-info">
+                        <h3>Física Mecânica e Termodinâmica (FIS001)</h3>
+                        <p>Cinemática escalar, leis de Newton, conservação de energia e ótica geométrica.</p>
+                        <span className="docente-info">Profa. Ana Oliveira • 80h</span>
+                      </div>
                     </div>
-                    <div className="aula historia">
-                      <div className="disciplina">História</div>
-                      <div className="professor">Prof. Lima</div>
-                    </div>
-                    <div className="aula fisica">
-                      <div className="disciplina">Física</div>
-                      <div className="professor">Prof. Santos</div>
-                    </div>
-                    <div className="aula geografia">
-                      <div className="disciplina">Geografia</div>
-                      <div className="professor">Prof. Gomes</div>
-                    </div>
-                  </div>
-                  <div className="horarios">
-                    <div className="horario">08:20 - 09:10</div>
-                    <div className="aula matematica">
-                      <div className="disciplina">Matemática</div>
-                      <div className="professor">Prof. Silva</div>
-                    </div>
-                    <div className="aula portugues">
-                      <div className="disciplina">Português</div>
-                      <div className="professor">Profa. Costa</div>
-                    </div>
-                    <div className="aula historia">
-                      <div className="disciplina">História</div>
-                      <div className="professor">Prof. Lima</div>
-                    </div>
-                    <div className="aula fisica">
-                      <div className="disciplina">Física</div>
-                      <div className="professor">Prof. Santos</div>
-                    </div>
-                    <div className="aula geografia">
-                      <div className="disciplina">Geografia</div>
-                      <div className="professor">Prof. Gomes</div>
-                    </div>
-                  </div>
-                  <div className="horarios">
-                    <div className="horario">09:10 - 10:00</div>
-                    <div className="aula portugues">
-                      <div className="disciplina">Português</div>
-                      <div className="professor">Profa. Costa</div>
-                    </div>
-                    <div className="aula ciencias">
-                      <div className="disciplina">Ciências</div>
-                      <div className="professor">Profa. Oliveira</div>
-                    </div>
-                    <div className="aula matematica">
-                      <div className="disciplina">Matemática</div>
-                      <div className="professor">Prof. Silva</div>
-                    </div>
-                    <div className="aula geografia">
-                      <div className="disciplina">Geografia</div>
-                      <div className="professor">Prof. Gomes</div>
-                    </div>
-                    <div className="aula historia">
-                      <div className="disciplina">História</div>
-                      <div className="professor">Prof. Lima</div>
+
+                    <div className="material-card-item">
+                      <div className="material-icon let"><i className="fas fa-pen-nib"></i></div>
+                      <div className="material-info">
+                        <h3>Língua Portuguesa & Literatura (LET001)</h3>
+                        <p>Interpretação textual, gêneros dissertativos, gramática normativa e modernismo.</p>
+                        <span className="docente-info">Profa. Mariana Costa • 60h</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

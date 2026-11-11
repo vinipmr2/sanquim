@@ -1,162 +1,131 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
-import LoadingOverlay from '../../components/LoadingOverlay';
+import { authApi } from '../../services/api';
 import './LoginProfessor.css';
 
 export const LoginProfessor = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { isDark, toggleTheme } = useTheme();
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [attemptsLeft, setAttemptsLeft] = useState(3);
-  const [loginMessage, setLoginMessage] = useState(
-    searchParams.get('erro') === '1' ? 'Usuário ou senha inválidos.' : ''
-  );
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
-    if (attemptsLeft <= 0) {
-      setLoginMessage('Número de tentativas esgotado. Tente novamente mais tarde.');
+    if (!email || !password) {
+      setErrorMessage('Por favor, preencha o e-mail e a senha.');
       return;
     }
 
     setIsLoading(true);
-    setLoginMessage('');
+    setErrorMessage('');
 
     try {
-      const res = await fetch('/api/auth/login/professor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.autenticado) {
-        localStorage.setItem('studi_user', JSON.stringify(data));
-        navigate(data.redirecionamento || '/dashboard/professor');
+      const data = await authApi.login(email, password);
+      if (data.perfil === 'ROLE_GESTAO') {
+        navigate('/dashboard/coordenador');
+      } else if (data.perfil === 'ROLE_PROFESSOR') {
+        navigate('/dashboard/professor');
       } else {
-        const nextAttempts = attemptsLeft - 1;
-        setAttemptsLeft(nextAttempts);
-        setLoginMessage(
-          data.mensagem || (nextAttempts > 0 
-            ? `Usuário ou senha inválidos. Tentativas restantes: ${nextAttempts}` 
-            : 'Acesso bloqueado por excesso de tentativas.')
-        );
+        navigate('/dashboard/aluno');
       }
     } catch (err) {
-      console.warn('Backend indisponível, utilizando autenticação local de demonstração:', err);
-      const userLower = username.trim().toLowerCase();
-      if (username.trim() && password.trim()) {
-        const redirect = (userLower.includes('coord') || userLower.includes('admin'))
-          ? '/dashboard/coordenador'
-          : '/dashboard/professor';
-        localStorage.setItem('studi_user', JSON.stringify({ nome: username, perfil: 'PROFESSOR' }));
-        navigate(redirect);
-      } else {
-        const nextAttempts = attemptsLeft - 1;
-        setAttemptsLeft(nextAttempts);
-        setLoginMessage(`Usuário ou senha inválidos. Tentativas restantes: ${nextAttempts}`);
-      }
+      setErrorMessage(err.message || 'Credenciais inválidas. Verifique seu e-mail e senha.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogoClick = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/');
-    }, 1000);
+  const autofillDemoProf = () => {
+    setEmail('carlos.santos@sanquim.br');
+    setPassword('prof123');
+    setErrorMessage('');
+  };
+
+  const autofillDemoGestao = () => {
+    setEmail('admin@sanquim.br');
+    setPassword('admin123');
+    setErrorMessage('');
   };
 
   return (
-    <div className="page-login-professor">
-      <header className="navbar">
-        <div className="logo" onClick={handleLogoClick}>
-          <img src="/assets/img/logo.webp" alt="Logo" />
-          <strong>Início</strong>
-        </div>
-        <div className="nav-items">
-          <span 
-            className="theme-toggle" 
-            onClick={toggleTheme} 
-            title="Mudar para tema escuro"
-            style={{ cursor: 'pointer' }}
-          >
-            {isDark ? '☀️' : '🌙'}
-          </span>
-        </div>
-        <div className="aluno">
-          <strong onClick={() => navigate('/login-aluno')}>Aluno</strong>
-        </div>
-      </header>
-
-      <div className="main">
-        <div className="tabs">
-          <div className="tab-header">
-            <div className="active">Login Professor</div>
+    <div className="login-prof-container">
+      <div className="login-prof-card">
+        <div className="login-prof-header">
+          <div className="logo-box" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <span className="logo-text">Studi<i>+</i></span>
           </div>
-          <div className="tab-content">
-            <div className="login-form">
-              <form onSubmit={handleLogin}>
-                <h2>Login</h2>
-                <div className="form-group">
-                  <label htmlFor="username">Email ou Usuário</label>
-                  <input 
-                    type="text" 
-                    id="username" 
-                    name="username" 
-                    placeholder="Digite seu usuário ou email" 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required 
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="password">Senha</label>
-                  <input 
-                    type="password" 
-                    id="password" 
-                    name="password" 
-                    placeholder="Digite sua senha" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required 
-                  />
-                </div>
+          <h2>Portal do Professor & Gestão</h2>
+          <p>Acesso restrito ao corpo docente e equipe de coordenação</p>
+        </div>
 
-                {loginMessage && (
-                  <div 
-                    id="login-message" 
-                    className="login-message error" 
-                    style={{ display: 'block' }}
-                  >
-                    {loginMessage}
-                  </div>
-                )}
+        {errorMessage && (
+          <div className="error-alert">
+            <i className="fas fa-exclamation-circle"></i> {errorMessage}
+          </div>
+        )}
 
-                <div className="login-attempts">
-                  Tentativas restantes: <span id="attempts-left">{attemptsLeft}</span>
-                </div>
-                <button type="submit">Entrar</button>
-                <div className="forgot-password">
-                  <Link to="/esqueci-senha">Esqueci minha senha</Link>
-                </div>
-              </form>
+        <div className="demo-fill-box">
+          <span>Acesso Rápido para Avaliação:</span>
+          <div className="demo-btns-group">
+            <button type="button" onClick={autofillDemoProf} className="btn-demo-autofill prof">
+              <i className="fas fa-chalkboard-teacher"></i> Prof. Carlos (ROLE_PROFESSOR)
+            </button>
+            <button type="button" onClick={autofillDemoGestao} className="btn-demo-autofill gestao">
+              <i className="fas fa-user-shield"></i> Coordenação (ROLE_GESTAO)
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleLogin} className="login-form">
+          <div className="form-group">
+            <label htmlFor="email">E-mail Institucional</label>
+            <div className="input-with-icon">
+              <i className="fas fa-envelope"></i>
+              <input
+                id="email"
+                type="text"
+                placeholder="nome@sanquim.br"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Senha</label>
+            <div className="input-with-icon">
+              <i className="fas fa-lock"></i>
+              <input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <Link to="/esqueci-senha" className="link-forgot">Esqueceu a senha?</Link>
+          </div>
+
+          <button type="submit" className="btn-submit" disabled={isLoading}>
+            {isLoading ? <><i className="fas fa-spinner fa-spin"></i> Autenticando...</> : <><i className="fas fa-sign-in-alt"></i> Acessar Painel</>}
+          </button>
+        </form>
+
+        <div className="login-prof-footer">
+          <p>É aluno? <Link to="/login-aluno">Acesse a Área do Aluno</Link></p>
+          <p>Deseja ser professor voluntário? <Link to="/cadastro-professor">Cadastre-se aqui</Link></p>
+          <p><Link to="/"><i className="fas fa-arrow-left"></i> Voltar à Página Inicial</Link></p>
         </div>
       </div>
-
-      <LoadingOverlay active={isLoading} />
     </div>
   );
 };

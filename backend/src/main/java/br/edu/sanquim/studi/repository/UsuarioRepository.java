@@ -1,9 +1,11 @@
 package br.edu.sanquim.studi.repository;
 
+import br.edu.sanquim.studi.model.PerfilUsuario;
 import br.edu.sanquim.studi.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +20,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByEmail(String email);
 
     boolean existsByUsuario(String usuario);
+
+    List<Usuario> findByPerfil(PerfilUsuario perfil);
+
+    List<Usuario> findByPerfilIn(List<PerfilUsuario> perfis);
 }
