@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { authApi } from '../../services/api';
 import './EsqueciSenha.css';
 
 export const EsqueciSenha = () => {
@@ -12,114 +13,134 @@ export const EsqueciSenha = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const isValidEmail = (value) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(value);
-  };
+  const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
 
-    if (!email) {
-      setErrorMessage('Por favor, digite seu email.');
+    if (!email.trim()) {
+      setErrorMessage('Por favor, digite seu e-mail.');
       return;
     }
 
-    if (!isValidEmail(email)) {
-      setErrorMessage('Por favor, digite um email válido.');
+    if (!isValidEmail(email.trim())) {
+      setErrorMessage('Por favor, digite um e-mail válido.');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/auth/esqueci-senha', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await res.json();
-      setSuccessMessage(data.mensagem || `Instruções de recuperação foram enviadas para ${email}.`);
+      const data = await authApi.esqueciSenha(email.trim());
+      setSuccessMessage(
+        data?.mensagem || `Instruções de recuperação foram enviadas para ${email.trim()}.`
+      );
       setEmail('');
     } catch (err) {
-      console.warn('Backend indisponível, simulando envio:', err);
-      setSuccessMessage(`Instruções de recuperação foram enviadas para ${email}. Verifique sua caixa de entrada e spam.`);
-      setEmail('');
+      setErrorMessage(
+        err?.message || 'Não foi possível enviar as instruções. Tente novamente em instantes.'
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="page-esqueci-senha">
-      <header className="navbar">
-        <div className="logo" onClick={() => navigate('/')}>
-          <img src="/assets/img/logo.webp" alt="Logo" />
-          <strong>Início</strong>
-        </div>
-        <div className="nav-items">
-          <span 
-            className="theme-toggle" 
-            onClick={toggleTheme} 
-            title="Mudar para tema escuro"
-            style={{ cursor: 'pointer' }}
-          >
-            {isDark ? '☀️' : '🌙'}
+    <div className="st-auth-shell page-esqueci-senha">
+      <div className="st-auth-topbar">
+        <div className="st-logo" onClick={() => navigate('/')}>
+          <div className="st-logo-mark">
+            <i className="fas fa-graduation-cap"></i>
+          </div>
+          <span className="st-logo-text">
+            Studi<i>+</i>
           </span>
         </div>
-      </header>
+        <button
+          type="button"
+          className="st-theme-btn"
+          onClick={toggleTheme}
+          title={isDark ? 'Mudar para tema claro' : 'Mudar para tema escuro'}
+        >
+          <i className={isDark ? 'fas fa-sun' : 'fas fa-moon'}></i>
+        </button>
+      </div>
 
-      <div className="container">
-        <h1>Esqueci Minha Senha</h1>
-        <p className="information-text">
-          Digite seu email cadastrado para receber as instruções de recuperação de senha.
-        </p>
+      <div className="st-auth-card">
+        <div className="st-auth-header">
+          <span className="st-badge st-badge-info">
+            <i className="fas fa-key"></i> Recuperação de Acesso
+          </span>
+          <h2>Esqueci Minha Senha</h2>
+          <p>Informe seu e-mail cadastrado para receber as instruções de recuperação.</p>
+        </div>
 
         {successMessage && (
-          <div id="success-message" className="success-message" style={{ display: 'block' }}>
-            {successMessage}
+          <div className="st-alert st-alert-success" id="success-message" role="status">
+            <i className="fas fa-check-circle"></i>
+            <span>{successMessage}</span>
           </div>
         )}
 
         {errorMessage && (
-          <div id="error-message" className="error-message" style={{ display: 'block' }}>
-            {errorMessage}
+          <div className="st-alert st-alert-error" id="error-message" role="alert">
+            <i className="fas fa-exclamation-circle"></i>
+            <span>{errorMessage}</span>
           </div>
         )}
 
-        <form id="forgot-password-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="user_email">Email</label>
-            <input 
-              type="email" 
-              name="user_email" 
-              id="user_email" 
-              placeholder="Digite seu email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
+        <form id="forgot-password-form" onSubmit={handleSubmit} className="st-form" noValidate>
+          <div className="st-field">
+            <label htmlFor="user_email">E-mail cadastrado</label>
+            <div className="st-input-icon">
+              <i className="fas fa-envelope"></i>
+              <input
+                type="email"
+                name="user_email"
+                id="user_email"
+                className="st-input"
+                placeholder="exemplo@sanquim.br"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                disabled={isLoading}
+                required
+              />
+            </div>
           </div>
-          <button 
-            type="submit" 
-            className={`reset-button ${isLoading ? 'is-loading' : ''}`} 
+
+          <button
+            type="submit"
+            className="st-btn st-btn-emerald st-btn-block"
             id="reset-button"
             disabled={isLoading}
           >
-            {isLoading ? 'Enviando...' : 'Enviar Link de Recuperação'}
+            {isLoading ? (
+              <>
+                <i className="fas fa-spinner fa-spin"></i> Enviando...
+              </>
+            ) : (
+              <>
+                <i className="fas fa-paper-plane"></i> Enviar Link de Recuperação
+              </>
+            )}
           </button>
         </form>
 
-        <div className="footer">
-          <h5>Novo por aqui? <Link to="/login-aluno">Cadastre-se</Link></h5>
-          <h5>Já tem uma conta? <Link to="/login-aluno">Fazer Login</Link></h5>
-          <h5>É professor? <Link to="/login-professor">Login Professor</Link></h5>
-          <p className="credit">
-            <span className="heart" title="Feito com carinho">🛋️</span>
-            Desenvolvedores de Sofá
-          </p>
+        <div className="st-auth-footer">
+          <span>
+            Lembrou a senha? <Link to="/login-aluno">Fazer Login</Link>
+          </span>
+          <span>
+            É professor? <Link to="/login-professor">Acesse a Área Docente</Link>
+          </span>
+          <span>
+            <Link to="/">
+              <i className="fas fa-arrow-left"></i> Voltar à Página Inicial
+            </Link>
+          </span>
         </div>
       </div>
     </div>

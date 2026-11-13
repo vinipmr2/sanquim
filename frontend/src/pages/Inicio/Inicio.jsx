@@ -66,13 +66,6 @@ export const Inicio = () => {
       <header className={`st-navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="st-logo" onClick={() => navigate('/')}>
           <div className="st-logo-mark">
-            <img
-              src="/assets/img/logo.webp"
-              alt="Logo Studi+"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
             <i className="fas fa-graduation-cap" aria-hidden="true"></i>
           </div>
           <span className="st-logo-text">

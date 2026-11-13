@@ -1,15 +1,9 @@
 @import '../../styles/studi-design-system.css';
 
 .page-esqueci-senha .st-auth-card {
-  border-top: 4px solid var(--st-amber);
+  border-top: 4px solid var(--st-emerald);
 }
 
-.page-esqueci-senha .credit-tag {
-  margin-top: 8px;
-  font-size: 0.78rem;
-  color: var(--st-text-muted);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+.page-esqueci-senha .st-auth-card form .st-btn[type='submit'] {
+  margin-top: 6px;
 }

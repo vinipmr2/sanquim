@@ -131,13 +131,6 @@ export const CadastroDisciplinas = () => {
       <header className="st-navbar">
         <div className="st-logo" onClick={() => navigate('/')}>
           <div className="st-logo-mark">
-            <img
-              src="/assets/img/logo.webp"
-              alt="Logo"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
             <i className="fas fa-graduation-cap"></i>
           </div>
           <span className="st-logo-text">

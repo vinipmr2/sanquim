@@ -86,6 +86,10 @@ export const authApi = {
     return data;
   },
   getMe: () => apiFetch('/api/auth/me'),
+  esqueciSenha: (email) => apiFetch('/api/auth/esqueci-senha', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  }),
   logout: () => authStorage.clearAuth()
 };
 

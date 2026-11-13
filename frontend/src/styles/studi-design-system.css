@@ -4,10 +4,10 @@
   --st-font-display: 'Space Grotesk', 'Jost', sans-serif;
   --st-font-body: 'Plus Jakarta Sans', 'Nunito', sans-serif;
 
-  --st-bg: #f4f7fb;
-  --st-bg-mesh: radial-gradient(circle at 12% 10%, rgba(245, 158, 11, 0.14), transparent 38%),
-                radial-gradient(circle at 88% 15%, rgba(2, 132, 199, 0.14), transparent 40%),
-                radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.10), transparent 45%);
+  --st-bg: #ffffff;
+  --st-bg-mesh: radial-gradient(circle at 12% 10%, rgba(2, 132, 199, 0.06), transparent 38%),
+                radial-gradient(circle at 88% 15%, rgba(2, 132, 199, 0.05), transparent 40%),
+                radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.05), transparent 45%);
   --st-surface: #ffffff;
   --st-surface-muted: #f8fafc;
   --st-surface-hover: #f1f5f9;
@@ -56,7 +56,7 @@
 
 body.dark-theme {
   --st-bg: #090e1a;
-  --st-bg-mesh: radial-gradient(circle at 12% 10%, rgba(245, 158, 11, 0.10), transparent 40%),
+  --st-bg-mesh: radial-gradient(circle at 12% 10%, rgba(56, 189, 248, 0.10), transparent 40%),
                 radial-gradient(circle at 88% 15%, rgba(56, 189, 248, 0.12), transparent 42%),
                 radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.08), transparent 45%);
   --st-surface: #111827;
@@ -203,7 +203,7 @@ body.dark-theme {
 
 .st-logo-text i {
   font-style: normal;
-  color: var(--st-amber);
+  color: var(--st-primary);
 }
 
 .st-nav-actions {
