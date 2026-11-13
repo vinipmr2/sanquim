@@ -1,353 +1,218 @@
-/* ============================================================
-   CADASTRO DE PROFESSOR - STUDI+
-   Totalmente escopado sob .page-cadastro-professor
-   ============================================================ */
 
-.page-cadastro-professor {
-    --cor-primaria: #0284c7;
-    --cor-secundaria: #0369a1;
-    --cor-acento: #38bdf8;
-    --cor-texto: #1e293b;
-    --cor-fundo: #f8fafc;
-    --cor-fundo-cartao: #ffffff;
-    --sombra: 0 4px 14px rgba(0, 0, 0, 0.08);
-    --borda-raio: 16px;
-    --espacamento: 20px;
+@import '../../styles/studi-design-system.css';
 
-    background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #38bdf8 100%);
-    color: var(--cor-texto);
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    font-family: 'Jost', 'Nunito', sans-serif;
-    box-sizing: border-box;
+.page-cadastro-professor .wizard-card {
+  max-width: 860px;
+  margin: 0 auto;
+  background: var(--st-surface);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-xl);
+  box-shadow: var(--st-shadow-lg);
+  overflow: hidden;
+  animation: stFadeUp 0.4s var(--st-ease) both;
 }
 
-body.dark-theme .page-cadastro-professor {
-    background: linear-gradient(135deg, #0f172a 0%, #0c4a6e 50%, #0f172a 100%);
-    --cor-fundo-cartao: #1e293b;
-    --cor-texto: #f1f5f9;
+.page-cadastro-professor .wizard-hero {
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 60%, #0ea5e9 100%);
+  color: #fff;
+  padding: 32px 28px;
+  text-align: center;
 }
 
-.page-cadastro-professor .container {
-    max-width: 820px;
-    width: 100%;
-    background-color: var(--cor-fundo-cartao);
-    border-radius: var(--borda-raio);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    position: relative;
-    box-sizing: border-box;
+.page-cadastro-professor .wizard-hero h1 {
+  font-family: var(--st-font-display);
+  font-size: 1.75rem;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* Botão Início */
-.page-cadastro-professor .inicio-button {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 10;
+.page-cadastro-professor .wizard-hero p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.92rem;
 }
 
-.page-cadastro-professor .btn-inicio {
-    background-color: rgba(255, 255, 255, 0.9);
-    color: var(--cor-primaria);
-    border: 2px solid var(--cor-primaria);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+/* Stepper */
+.page-cadastro-professor .stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 20px 28px;
+  background: var(--st-surface-muted);
+  border-bottom: 1px solid var(--st-border);
 }
 
-.page-cadastro-professor .btn-inicio:hover {
-    background-color: var(--cor-primaria);
-    color: white;
-    transform: translateY(-2px);
+.page-cadastro-professor .step-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.55;
+  transition: var(--st-transition);
 }
 
-.page-cadastro-professor .header {
-    background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-secundaria) 100%);
-    color: white;
-    padding: 30px;
-    text-align: center;
-    position: relative;
+.page-cadastro-professor .step-item.active,
+.page-cadastro-professor .step-item.completed {
+  opacity: 1;
 }
 
-.page-cadastro-professor .header-content {
-    position: relative;
-    z-index: 1;
+.page-cadastro-professor .step-circle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--st-border-strong);
+  color: var(--st-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  flex-shrink: 0;
 }
 
-.page-cadastro-professor .header h1 {
-    font-size: 26px;
-    font-weight: 800;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+.page-cadastro-professor .step-item.active .step-circle {
+  background: var(--st-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--st-primary-soft);
 }
 
-.page-cadastro-professor .header p {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-/* Barra de Progresso */
-.page-cadastro-professor .progress-bar {
-    display: flex;
-    justify-content: space-between;
-    padding: 24px 30px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-}
-
-body.dark-theme .page-cadastro-professor .progress-bar {
-    background: #0f172a;
-    border-color: #334155;
-}
-
-.page-cadastro-professor .progress-step {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-    flex: 1;
-}
-
-.page-cadastro-professor .step-number {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #cbd5e1;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
-    z-index: 2;
+.page-cadastro-professor .step-item.completed .step-circle {
+  background: var(--st-emerald);
+  color: #fff;
 }
 
 .page-cadastro-professor .step-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--st-text-sec);
 }
 
-.page-cadastro-professor .progress-step.active .step-number {
-    background: var(--cor-primaria);
+.page-cadastro-professor .wizard-body {
+  padding: 30px 28px;
 }
 
-.page-cadastro-professor .progress-step.active .step-label {
-    color: var(--cor-primaria);
-    font-weight: 700;
+.page-cadastro-professor .section-title {
+  font-family: var(--st-font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--st-primary);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--st-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.page-cadastro-professor .progress-step.completed .step-number {
-    background: #10b981;
+.page-cadastro-professor .required {
+  color: var(--st-danger);
 }
 
-/* Formulário */
-.page-cadastro-professor .form-container {
-    padding: 30px;
+/* Chips interativos de disciplinas */
+.page-cadastro-professor .subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+  gap: 10px;
 }
 
-.page-cadastro-professor .step-content {
-    animation: fadeIn 0.3s ease-in-out;
+.page-cadastro-professor .subject-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--st-border-strong);
+  background: var(--st-surface-muted);
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--st-text-sec);
+  transition: var(--st-transition);
+  user-select: none;
 }
 
-.page-cadastro-professor .form-section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--cor-primaria);
-    margin-bottom: 20px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #e2e8f0;
+.page-cadastro-professor .subject-chip input {
+  display: none;
 }
 
-body.dark-theme .page-cadastro-professor .form-section-title {
-    border-color: #334155;
+.page-cadastro-professor .subject-chip:hover {
+  border-color: var(--st-primary);
 }
 
-.page-cadastro-professor .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 16px;
+.page-cadastro-professor .subject-chip.selected {
+  background: var(--st-primary-soft);
+  border-color: var(--st-primary);
+  color: var(--st-primary);
 }
 
-.page-cadastro-professor .form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 16px;
+/* Dropzone de Upload */
+.page-cadastro-professor .upload-zone {
+  position: relative;
+  border: 2px dashed var(--st-border-strong);
+  border-radius: 14px;
+  padding: 18px;
+  background: var(--st-surface-muted);
+  transition: var(--st-transition);
 }
 
-.page-cadastro-professor label {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 700;
-    font-size: 13px;
-    color: #334155;
+.page-cadastro-professor .upload-zone:hover,
+.page-cadastro-professor .upload-zone.has-file {
+  border-color: var(--st-primary);
+  background: var(--st-primary-soft);
 }
 
-body.dark-theme .page-cadastro-professor label {
-    color: #cbd5e1;
+.page-cadastro-professor .upload-zone input[type='file'] {
+  display: none;
 }
 
-.page-cadastro-professor input[type="text"],
-.page-cadastro-professor input[type="email"],
-.page-cadastro-professor input[type="tel"],
-.page-cadastro-professor input[type="date"],
-.page-cadastro-professor select,
-.page-cadastro-professor textarea {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 14px;
-    background: #f8fafc;
-    color: #0f172a;
-    outline: none;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
+.page-cadastro-professor .upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--st-text-sec);
 }
 
-body.dark-theme .page-cadastro-professor input[type="text"],
-body.dark-theme .page-cadastro-professor input[type="email"],
-body.dark-theme .page-cadastro-professor input[type="tel"],
-body.dark-theme .page-cadastro-professor input[type="date"],
-body.dark-theme .page-cadastro-professor select,
-body.dark-theme .page-cadastro-professor textarea {
-    background: #0f172a;
-    border-color: #334155;
-    color: #f8fafc;
+.page-cadastro-professor .wizard-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--st-border);
 }
 
-.page-cadastro-professor input:focus,
-.page-cadastro-professor select:focus,
-.page-cadastro-professor textarea:focus {
-    border-color: var(--cor-primaria);
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-}
-
-.page-cadastro-professor .checkbox-group {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    margin-top: 6px;
-}
-
-.page-cadastro-professor .checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-}
-
-.page-cadastro-professor .file-upload-area {
-    border: 2px dashed #cbd5e1;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    background: #f8fafc;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-body.dark-theme .page-cadastro-professor .file-upload-area {
-    background: #0f172a;
-    border-color: #334155;
-}
-
-.page-cadastro-professor .file-upload-area:hover {
-    border-color: var(--cor-primaria);
-}
-
-.page-cadastro-professor .navigation-buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
-}
-
-body.dark-theme .page-cadastro-professor .navigation-buttons {
-    border-color: #334155;
-}
-
-.page-cadastro-professor .btn {
-    padding: 10px 22px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.page-cadastro-professor .btn-prev {
-    background: #e2e8f0;
-    color: #475569;
-}
-
-.page-cadastro-professor .btn-next {
-    background: var(--cor-primaria);
-    color: white;
-}
-
-.page-cadastro-professor .btn-submit {
-    background: #10b981;
-    color: white;
-}
-
-.page-cadastro-professor .success-container {
-    text-align: center;
-    padding: 40px 20px;
+.page-cadastro-professor .success-box {
+  text-align: center;
+  padding: 28px 16px;
+  animation: stScaleIn 0.35s var(--st-ease) both;
 }
 
 .page-cadastro-professor .success-icon {
-    font-size: 56px;
-    color: #10b981;
-    margin-bottom: 16px;
+  width: 74px;
+  height: 74px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--st-emerald-soft);
+  color: var(--st-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
 }
 
-.page-cadastro-professor .success-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--cor-primaria);
-    margin-bottom: 10px;
+@media (max-width: 720px) {
+  .page-cadastro-professor .stepper {
+    grid-template-columns: 1fr 1fr;
+    padding: 16px;
+  }
+  .page-cadastro-professor .wizard-body {
+    padding: 22px 18px;
+  }
 }
 
-.page-cadastro-professor .success-text {
-    font-size: 15px;
-    color: #64748b;
-    margin-bottom: 24px;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 768px) {
-    .page-cadastro-professor .form-row {
-        grid-template-columns: 1fr;
-    }
-    .page-cadastro-professor .progress-bar {
-        flex-direction: column;
-        gap: 12px;
-    }
-}
