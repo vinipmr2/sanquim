@@ -101,7 +101,7 @@
 }
 
 .page-inicio .hero-main-card h1 span {
-  background: linear-gradient(135deg, #0284c7, #10b981);
+  background: linear-gradient(135deg, #ffb300, #379091);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -249,7 +249,7 @@
 }
 
 .page-inicio .rbac-card.gestao::before { background: linear-gradient(90deg, #d97706, #fbbf24); }
-.page-inicio .rbac-card.prof::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.page-inicio .rbac-card.prof::before { background: linear-gradient(90deg, #379091, #4fb3b4); }
 .page-inicio .rbac-card.aluno::before { background: linear-gradient(90deg, #059669, #34d399); }
 
 .page-inicio .rbac-card:hover {

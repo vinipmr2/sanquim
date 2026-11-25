@@ -82,7 +82,7 @@ body.dark-theme .page-dashboard-coordenador {
 }
 
 .page-dashboard-coordenador .sidebar-logo h2 i {
-  color: #38bdf8;
+  color: var(--st-primary);
   font-style: normal;
 }
 
@@ -128,8 +128,8 @@ body.dark-theme .page-dashboard-coordenador {
 }
 
 .page-dashboard-coordenador .sidebar-menu a.active {
-  background: #0284c7;
-  color: #fff;
+  background: linear-gradient(135deg, #ffb300, #ffc544);
+  color: var(--st-on-primary);
 }
 
 .page-dashboard-coordenador .counter-badge {
@@ -327,7 +327,7 @@ body.dark-theme .page-dashboard-coordenador .kpi-card {
   flex-shrink: 0;
 }
 
-.page-dashboard-coordenador .kpi-card.blue .kpi-icon { background: #dbeafe; color: #2563eb; }
+.page-dashboard-coordenador .kpi-card.blue .kpi-icon { background: var(--st-primary-soft); color: var(--st-primary-ink); }
 .page-dashboard-coordenador .kpi-card.green .kpi-icon { background: #d1fae5; color: #059669; }
 .page-dashboard-coordenador .kpi-card.purple .kpi-icon { background: #f3e8ff; color: #9333ea; }
 .page-dashboard-coordenador .kpi-card.orange .kpi-icon { background: #ffedd5; color: #ea580c; }
@@ -414,7 +414,7 @@ body.dark-theme .page-dashboard-coordenador .card-box h2 {
 .page-dashboard-coordenador .btn-link {
   background: none;
   border: none;
-  color: #0284c7;
+  color: var(--st-primary-ink);
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
@@ -490,8 +490,8 @@ body.dark-theme .page-dashboard-coordenador .custom-table tr:hover {
 }
 
 .page-dashboard-coordenador .badge-info {
-  background: #e0f2fe;
-  color: #0369a1;
+  background: var(--st-primary-soft);
+  color: var(--st-primary-ink);
   padding: 3px 8px;
   border-radius: 6px;
   font-weight: 700;
@@ -537,7 +537,7 @@ body.dark-theme .page-dashboard-coordenador .custom-table tr:hover {
 
 .page-dashboard-coordenador .progress-fill {
   height: 100%;
-  background: #3b82f6;
+  background: var(--st-primary);
   border-radius: 6px;
 }
 
@@ -655,8 +655,8 @@ body.dark-theme .page-dashboard-coordenador .compact-form textarea {
 
 .page-dashboard-coordenador .btn-submit-form {
   padding: 12px;
-  background: #0284c7;
-  color: #fff;
+  background: var(--st-primary);
+  color: var(--st-on-primary);
   border: none;
   border-radius: 10px;
   font-weight: 700;
@@ -672,7 +672,7 @@ body.dark-theme .page-dashboard-coordenador .compact-form textarea {
 }
 
 .page-dashboard-coordenador .btn-submit-form:hover {
-  background: #0369a1;
+  background: var(--st-primary-hover);
 }
 
 .page-dashboard-coordenador .btn-action {
@@ -690,8 +690,8 @@ body.dark-theme .page-dashboard-coordenador .compact-form textarea {
 }
 
 .page-dashboard-coordenador .btn-action.primary {
-  background: #0284c7;
-  color: #fff;
+  background: var(--st-primary);
+  color: var(--st-on-primary);
 }
 
 .page-dashboard-coordenador .max-h {

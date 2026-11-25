@@ -13,8 +13,8 @@
 }
 
 .page-cadastro-professor .wizard-hero {
-  background: linear-gradient(135deg, #0369a1 0%, #0284c7 60%, #0ea5e9 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #ffb300 0%, #ffc544 60%, #ffd984 100%);
+  color: var(--st-on-primary);
   padding: 32px 28px;
   text-align: center;
 }

@@ -13,7 +13,7 @@
 .login-aluno-container .forgot-row a {
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--st-primary);
+  color: var(--st-primary-ink);
   text-decoration: none;
 }
 

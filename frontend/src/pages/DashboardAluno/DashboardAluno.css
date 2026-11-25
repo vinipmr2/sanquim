@@ -370,7 +370,7 @@ body.dark-theme .page-dashboard-aluno .kpi-card {
 
 .page-dashboard-aluno .kpi-icon.media { background: #fef3c7; color: #d97706; }
 .page-dashboard-aluno .kpi-icon.presenca { background: #dcfce7; color: #15803d; }
-.page-dashboard-aluno .kpi-icon.aulas { background: #e0f2fe; color: #0284c7; }
+.page-dashboard-aluno .kpi-icon.aulas { background: var(--st-primary-soft); color: var(--st-primary-ink); }
 .page-dashboard-aluno .kpi-icon.disciplinas { background: #ede9fe; color: #7c3aed; }
 
 .page-dashboard-aluno .kpi-info {
@@ -784,7 +784,7 @@ body.dark-theme .page-dashboard-aluno .timeline-card-content h3 {
   border: 1px dashed #cbd5e1;
   border-radius: 6px;
   font-size: 12px;
-  color: #0284c7;
+  color: var(--st-primary-ink);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -828,7 +828,7 @@ body.dark-theme .page-dashboard-aluno .material-card-item {
   flex-shrink: 0;
 }
 
-.page-dashboard-aluno .material-icon.math { background: #e0f2fe; color: #0284c7; }
+.page-dashboard-aluno .material-icon.math { background: var(--st-primary-soft); color: var(--st-primary-ink); }
 .page-dashboard-aluno .material-icon.fis { background: #fef3c7; color: #d97706; }
 .page-dashboard-aluno .material-icon.let { background: #fce7f3; color: #db2777; }
 
